@@ -134,8 +134,7 @@ RUN pip3 install --no-cache-dir --break-system-packages \
     rich \
     typer \
     pyyaml \
-    tabulate \
-    # jira-assistant-skills-lib (optional)
+    tabulate
 
 # Add pipx and uv paths
 ENV PATH="/root/.local/bin:$PATH"
