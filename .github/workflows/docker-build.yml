@@ -85,7 +85,7 @@ jobs:
           images: ${{ env.IMAGE_NAME }}
           tags: |
             type=raw,value=enhanced,enable={{is_default_branch}}
-            type=raw,value={{version}}-enhanced,enable=${{ startsWith(github.ref, 'refs/tags/') }}
+            type=semver,pattern={{version}}-enhanced
             type=sha,prefix=enhanced-
 
       - name: Build and push enhanced image
