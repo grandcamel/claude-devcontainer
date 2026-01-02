@@ -226,8 +226,8 @@ RUN echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/$USERNAME \
 # =============================================================================
 # Copy Enhanced Configurations
 # =============================================================================
-COPY enhanced/starship.toml /home/$USERNAME/.config/starship.toml
-COPY enhanced/tmux.conf /home/$USERNAME/.tmux.conf
+COPY config/starship.toml /home/$USERNAME/.config/starship.toml
+COPY config/tmux.conf /home/$USERNAME/.tmux.conf
 
 # Set ownership
 RUN chown -R $USER_UID:$USER_GID /home/$USERNAME/.config /home/$USERNAME/.tmux.conf
