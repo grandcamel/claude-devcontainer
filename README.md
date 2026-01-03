@@ -73,6 +73,7 @@ docker run -it -v $(pwd):/workspace/project grandcamel/claude-devcontainer:enhan
 | `scripts/run.sh` | Main developer container runner |
 | `scripts/build-enhanced.sh` | Build pre-configured enhanced image |
 | `scripts/build-team-image.sh` | Generate team-customized Dockerfile from config |
+| `scripts/publish-to-registry.sh` | Publish team image to private registry |
 
 ## Configuration Options
 
@@ -180,7 +181,53 @@ EOF
 
 The generated `Dockerfile.team` can be committed to version control for reproducible builds across your team.
 
-### For Private Registries
+### Publishing to Private Registries
+
+For self-hosted registries (Harbor, Nexus, GitLab Registry), use the publish script:
+
+```bash
+# 1. Create your team config (see examples/team-config-private-registry.yaml)
+cp examples/team-config-private-registry.yaml team-config.yaml
+
+# 2. Add your corporate CA certificate (if needed)
+cp /path/to/corporate-ca.crt .
+
+# 3. Create a git tag for versioning
+git tag v1.0.0
+
+# 4. Publish to registry (will prompt for credentials)
+./scripts/publish-to-registry.sh \
+  --config team-config.yaml \
+  --registry harbor.company.com
+
+# Or with credentials for scripting
+./scripts/publish-to-registry.sh \
+  --config team-config.yaml \
+  --registry harbor.company.com \
+  --user deployer \
+  --token $REGISTRY_TOKEN
+```
+
+**Dry run** to see what would happen:
+```bash
+./scripts/publish-to-registry.sh \
+  --config team-config.yaml \
+  --registry harbor.company.com \
+  --dry-run
+```
+
+**Team members** can then pull and use the image:
+```bash
+# Pull the image
+docker pull harbor.company.com/platform/dev-container:1.0.0
+
+# Or use with run.sh
+./scripts/run.sh --image harbor.company.com/platform/dev-container --tag 1.0.0
+```
+
+### Quick Build for Private Registries
+
+For simpler cases without a config file:
 
 ```bash
 # Build and push to private registry
