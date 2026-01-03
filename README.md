@@ -71,10 +71,8 @@ docker run -it -v $(pwd):/workspace/project grandcamel/claude-devcontainer:enhan
 | Script | Description |
 |--------|-------------|
 | `scripts/run.sh` | Main developer container runner |
-| `scripts/run-sandboxed.sh` | Run with restricted tool access |
-| `scripts/run-workspace.sh` | Hybrid file + external service workflows |
 | `scripts/build-enhanced.sh` | Build pre-configured enhanced image |
-| `scripts/run-tests.sh` | Run tests in container (CI patterns) |
+| `scripts/build-team-image.sh` | Generate team-customized Dockerfile from config |
 
 ## Configuration Options
 
@@ -134,6 +132,53 @@ The enhanced configuration includes these modern CLI replacements:
 | direnv | - | Per-directory environments |
 
 ## Building Custom Images
+
+### Team Customization
+
+Create a team-specific container with your organization's CA certificate and standard packages:
+
+```bash
+# Create a team config file (see examples/team-config.yaml)
+cat > team-config.yaml << 'EOF'
+image:
+  base: grandcamel/claude-devcontainer:enhanced
+  name: my-company/dev-container
+  tag: latest
+
+certificate:
+  file: zscaler.crt
+
+pip:
+  - flask
+  - sqlalchemy
+  - boto3
+
+npm:
+  - typescript
+  - "@types/node"
+
+apt:
+  - graphviz
+  - libpq-dev
+
+environment:
+  TEAM_NAME: "Platform Engineering"
+
+labels:
+  maintainer: "platform-team@company.com"
+EOF
+
+# Generate Dockerfile.team (for version control)
+./scripts/build-team-image.sh --config team-config.yaml
+
+# Generate and build in one step
+./scripts/build-team-image.sh --config team-config.yaml --build
+
+# Build and push to registry
+./scripts/build-team-image.sh --config team-config.yaml --build --push
+```
+
+The generated `Dockerfile.team` can be committed to version control for reproducible builds across your team.
 
 ### For Private Registries
 
