@@ -269,11 +269,13 @@ RUN git config --global core.pager delta \
     && git config --global diff.colorMoved default
 
 # =============================================================================
-# Ensure PATH is set for login shells (add to .profile)
+# Ensure PATH is set for login shells (prepend to .profile so it runs before .bashrc)
 # =============================================================================
-RUN echo '' >> ~/.profile && \
-    echo '# Toolchain paths for login shells' >> ~/.profile && \
-    echo 'export PATH="/home/devuser/venv/bin:/usr/local/cargo/bin:/home/devuser/go/bin:/usr/local/go/bin:$PATH"' >> ~/.profile
+RUN PROFILE_CONTENT=$(cat ~/.profile) && \
+    echo '# Toolchain paths (must be before .bashrc is sourced for zoxide/starship)' > ~/.profile && \
+    echo 'export PATH="/home/devuser/venv/bin:/usr/local/cargo/bin:/home/devuser/go/bin:/usr/local/go/bin:$PATH"' >> ~/.profile && \
+    echo '' >> ~/.profile && \
+    echo "$PROFILE_CONTENT" >> ~/.profile
 
 # =============================================================================
 # Shell Configuration with Enhanced Tools

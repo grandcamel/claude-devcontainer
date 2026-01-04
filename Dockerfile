@@ -214,11 +214,13 @@ RUN pip install --no-cache-dir \
     numpy
 
 # =============================================================================
-# Ensure PATH is set for login shells (add to .profile)
+# Ensure PATH is set for login shells (prepend to .profile so it runs first)
 # =============================================================================
-RUN echo '' >> ~/.profile && \
-    echo '# Toolchain paths for login shells' >> ~/.profile && \
-    echo 'export PATH="/home/devuser/venv/bin:/usr/local/cargo/bin:/home/devuser/go/bin:/usr/local/go/bin:$PATH"' >> ~/.profile
+RUN PROFILE_CONTENT=$(cat ~/.profile) && \
+    echo '# Toolchain paths (must be set before other profile scripts)' > ~/.profile && \
+    echo 'export PATH="/home/devuser/venv/bin:/usr/local/cargo/bin:/home/devuser/go/bin:/usr/local/go/bin:$PATH"' >> ~/.profile && \
+    echo '' >> ~/.profile && \
+    echo "$PROFILE_CONTENT" >> ~/.profile
 
 # =============================================================================
 # Shell Configuration
