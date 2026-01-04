@@ -214,6 +214,13 @@ RUN pip install --no-cache-dir \
     numpy
 
 # =============================================================================
+# Ensure PATH is set for login shells (add to .profile)
+# =============================================================================
+RUN echo '' >> ~/.profile && \
+    echo '# Toolchain paths for login shells' >> ~/.profile && \
+    echo 'export PATH="/home/devuser/venv/bin:/usr/local/cargo/bin:/home/devuser/go/bin:/usr/local/go/bin:$PATH"' >> ~/.profile
+
+# =============================================================================
 # Shell Configuration
 # =============================================================================
 RUN echo 'export PS1="\[\033[01;32m\]dev\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "' >> ~/.bashrc \
