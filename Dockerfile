@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM node:20-bookworm
 
 LABEL maintainer="jasonkrue@gmail.com"
@@ -106,10 +107,11 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --de
     && chmod -R a+rwx $RUSTUP_HOME $CARGO_HOME
 
 # =============================================================================
-# Node.js Global Tools (Node already in base image)
+# Node.js Global Tools (with BuildKit cache)
 # =============================================================================
 # Note: yarn is already included in node:20-bookworm base image
-RUN npm install -g \
+RUN --mount=type=cache,target=/root/.npm \
+    npm install -g \
     @anthropic-ai/claude-code \
     typescript \
     ts-node \
@@ -118,9 +120,10 @@ RUN npm install -g \
     pnpm
 
 # =============================================================================
-# Python Global Tools
+# Python Global Tools (with BuildKit cache)
 # =============================================================================
-RUN pip3 install --no-cache-dir --break-system-packages \
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip3 install --break-system-packages \
     pipx \
     uv \
     poetry \
@@ -202,8 +205,9 @@ RUN python3 -m venv /home/$USERNAME/venv
 ENV PATH="/home/$USERNAME/venv/bin:$PATH"
 ENV VIRTUAL_ENV="/home/$USERNAME/venv"
 
-# Install common Python packages in user venv
-RUN pip install --no-cache-dir \
+# Install common Python packages in user venv (with BuildKit cache)
+RUN --mount=type=cache,target=/home/devuser/.cache/pip,uid=1000,gid=1000 \
+    pip install \
     ipython \
     jupyter \
     requests \

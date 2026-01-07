@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # =============================================================================
 # Enhanced Developer Container - Batteries Included
 # =============================================================================
@@ -13,6 +14,9 @@
 #   - btop (system monitor), lazygit (git TUI)
 #   - tmux (configured), neovim + kickstart
 #   - direnv (per-directory environments)
+#
+# Version overrides (use --build-arg):
+#   GO_VERSION, EZA_VERSION, DELTA_VERSION, ZOXIDE_VERSION, LAZYGIT_VERSION
 #
 FROM node:20-bookworm
 
@@ -122,9 +126,10 @@ RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --de
     && chmod -R a+rwx $RUSTUP_HOME $CARGO_HOME
 
 # =============================================================================
-# Node.js Global Tools
+# Node.js Global Tools (with BuildKit cache)
 # =============================================================================
-RUN npm install -g \
+RUN --mount=type=cache,target=/root/.npm \
+    npm install -g \
     @anthropic-ai/claude-code \
     typescript \
     ts-node \
@@ -133,9 +138,10 @@ RUN npm install -g \
     pnpm
 
 # =============================================================================
-# Python Global Tools
+# Python Global Tools (with BuildKit cache)
 # =============================================================================
-RUN pip3 install --no-cache-dir --break-system-packages \
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip3 install --break-system-packages \
     pipx \
     uv \
     poetry \
@@ -175,25 +181,45 @@ RUN curl -fsSL https://get.docker.com | sh \
     && rm -rf /var/lib/apt/lists/*
 
 # =============================================================================
-# Enhanced CLI Tools (Rust-based - installed globally)
+# Enhanced CLI Tools (using binary releases for faster builds)
 # =============================================================================
+# Override versions: --build-arg EZA_VERSION=0.18.0 etc.
+
+ARG EZA_VERSION=0.20.13
+ARG DELTA_VERSION=0.18.2
+ARG ZOXIDE_VERSION=0.9.6
+ARG LAZYGIT_VERSION=0.44.1
 
 # Starship prompt
 RUN curl -sS https://starship.rs/install.sh | sh -s -- -y
 
-# eza (modern ls) - install via cargo
-RUN cargo install eza
+# eza (modern ls) - binary release (much faster than cargo install)
+RUN curl -sLo /tmp/eza.tar.gz \
+    "https://github.com/eza-community/eza/releases/download/v${EZA_VERSION}/eza_x86_64-unknown-linux-gnu.tar.gz" \
+    && tar -xzf /tmp/eza.tar.gz -C /usr/local/bin \
+    && chmod +x /usr/local/bin/eza \
+    && rm /tmp/eza.tar.gz
 
-# delta (better git diff)
-RUN cargo install git-delta
+# delta (better git diff) - binary release
+RUN curl -sLo /tmp/delta.tar.gz \
+    "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/delta-${DELTA_VERSION}-x86_64-unknown-linux-gnu.tar.gz" \
+    && tar -xzf /tmp/delta.tar.gz -C /tmp \
+    && mv /tmp/delta-${DELTA_VERSION}-x86_64-unknown-linux-gnu/delta /usr/local/bin/ \
+    && chmod +x /usr/local/bin/delta \
+    && rm -rf /tmp/delta*
 
-# zoxide (smart cd)
-RUN cargo install zoxide
+# zoxide (smart cd) - binary release
+RUN curl -sLo /tmp/zoxide.tar.gz \
+    "https://github.com/ajeetdsouza/zoxide/releases/download/v${ZOXIDE_VERSION}/zoxide-${ZOXIDE_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+    && tar -xzf /tmp/zoxide.tar.gz -C /usr/local/bin zoxide \
+    && chmod +x /usr/local/bin/zoxide \
+    && rm /tmp/zoxide.tar.gz
 
-# lazygit
-RUN LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') \
-    && curl -sLo /tmp/lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" \
+# lazygit - binary release
+RUN curl -sLo /tmp/lazygit.tar.gz \
+    "https://github.com/jesseduffield/lazygit/releases/download/v${LAZYGIT_VERSION}/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" \
     && tar -xzf /tmp/lazygit.tar.gz -C /usr/local/bin lazygit \
+    && chmod +x /usr/local/bin/lazygit \
     && rm /tmp/lazygit.tar.gz
 
 # =============================================================================
@@ -241,7 +267,8 @@ RUN python3 -m venv /home/$USERNAME/venv
 ENV PATH="/home/$USERNAME/venv/bin:$PATH"
 ENV VIRTUAL_ENV="/home/$USERNAME/venv"
 
-RUN pip install --no-cache-dir \
+RUN --mount=type=cache,target=/home/devuser/.cache/pip,uid=1000,gid=1000 \
+    pip install \
     ipython \
     jupyter \
     requests \
