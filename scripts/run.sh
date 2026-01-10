@@ -55,6 +55,7 @@ DEV_IMAGE_TAG="${CLAUDE_DEVCONTAINER_TAG:-latest}"
 PROJECT_PATH=""
 USE_API_KEY=false
 USE_API_KEY_FROM_CONFIG=false
+USE_OAUTH_TOKEN=false
 BUILD_IMAGE=false
 MOUNT_DOCKER=false
 PERSIST_CACHE=false
@@ -92,6 +93,10 @@ while [[ $# -gt 0 ]]; do
         --api-key-from-config)
             USE_API_KEY_FROM_CONFIG=true
             USE_API_KEY=true
+            shift
+            ;;
+        --oauth-token)
+            USE_OAUTH_TOKEN=true
             shift
             ;;
         --build)
@@ -224,6 +229,7 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "Authentication (choose one):"
             echo "  (default)              Use OAuth from macOS Keychain (free with subscription)"
+            echo "  --oauth-token          Use CLAUDE_CODE_OAUTH_TOKEN (Pro/Max, run 'claude setup-token')"
             echo "  --api-key              Use ANTHROPIC_API_KEY environment variable (paid)"
             echo "  --api-key-from-config  Use primaryApiKey from ~/.claude.json (paid)"
             echo ""
@@ -445,7 +451,9 @@ run_devcontainer() {
     fi
 
     # Authentication configuration
-    if [[ "$USE_API_KEY" == "true" ]]; then
+    if [[ "$USE_OAUTH_TOKEN" == "true" ]]; then
+        docker_args+=("-e" "CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN}")
+    elif [[ "$USE_API_KEY" == "true" ]]; then
         docker_args+=("-e" "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}")
     else
         docker_args+=("-v" "$CREDS_TMP_DIR:/home/devuser/.claude")
@@ -585,7 +593,7 @@ main() {
     echo ""
 
     setup_cleanup_trap
-    validate_auth "$USE_API_KEY" "$USE_API_KEY_FROM_CONFIG"
+    validate_auth "$USE_API_KEY" "$USE_API_KEY_FROM_CONFIG" "$USE_OAUTH_TOKEN"
     ensure_dev_image "$BUILD_IMAGE" "$PUSH_IMAGE"
     run_devcontainer
 

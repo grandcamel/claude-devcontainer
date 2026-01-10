@@ -142,11 +142,26 @@ create_credentials_dir() {
 # Arguments:
 #   $1 - USE_API_KEY (true/false)
 #   $2 - USE_API_KEY_FROM_CONFIG (true/false)
+#   $3 - USE_OAUTH_TOKEN (true/false)
 validate_auth() {
     local use_api_key="${1:-false}"
     local use_api_key_from_config="${2:-false}"
+    local use_oauth_token="${3:-false}"
 
-    if [[ "$use_api_key" == "true" ]]; then
+    if [[ "$use_oauth_token" == "true" ]]; then
+        # OAuth token mode (Pro/Max subscription, long-lived token)
+        if [[ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ]]; then
+            echo_error "CLAUDE_CODE_OAUTH_TOKEN is not set"
+            echo ""
+            echo "Generate a token with:"
+            echo "  claude setup-token"
+            echo ""
+            echo "Then export it:"
+            echo "  export CLAUDE_CODE_OAUTH_TOKEN='c_oauth_token_...'"
+            exit 1
+        fi
+        echo_info "Using OAuth token (Pro/Max subscription)"
+    elif [[ "$use_api_key" == "true" ]]; then
         if [[ "$use_api_key_from_config" == "true" ]]; then
             ANTHROPIC_API_KEY=$(get_api_key_from_config) || exit 1
             export ANTHROPIC_API_KEY

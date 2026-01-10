@@ -23,7 +23,8 @@ This is a batteries-included developer container optimized for Claude Code. It p
 # Install additional packages at runtime
 ./scripts/run.sh --pip flask,sqlalchemy --npm lodash --apt graphviz
 
-# API key authentication
+# Authentication options
+./scripts/run.sh --oauth-token          # uses CLAUDE_CODE_OAUTH_TOKEN (Pro/Max, 'claude setup-token')
 ./scripts/run.sh --api-key              # uses ANTHROPIC_API_KEY env var
 ./scripts/run.sh --api-key-from-config  # reads from ~/.claude.json
 ```
@@ -68,7 +69,8 @@ docker run --rm test-enhanced which starship
 ## Authentication Flow
 
 1. **OAuth (default on macOS)**: Reads credentials from macOS Keychain via `security find-generic-password`, creates temp directory with `.credentials.json`, mounts to container
-2. **API Key**: Either from `ANTHROPIC_API_KEY` env var or `primaryApiKey` from `~/.claude.json`
+2. **OAuth Token**: Uses `CLAUDE_CODE_OAUTH_TOKEN` env var (for Pro/Max users, generate with `claude setup-token`)
+3. **API Key**: Either from `ANTHROPIC_API_KEY` env var or `primaryApiKey` from `~/.claude.json`
 
 The `validate_auth()` function in `lib/container.sh` handles all authentication modes.
 

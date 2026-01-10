@@ -384,6 +384,7 @@ Additional Packages:
 
 Authentication:
   (default)             Use OAuth from macOS Keychain
+  --oauth-token         Use CLAUDE_CODE_OAUTH_TOKEN (Pro/Max, run 'claude setup-token')
   --api-key             Use ANTHROPIC_API_KEY environment variable
   --api-key-from-config Use primaryApiKey from ~/.claude.json
 ```
@@ -459,7 +460,8 @@ labels:
 flowchart TD
     U["./scripts/run.sh"] --> AUTH{"Authentication"}
     AUTH -->|OAuth| KC["macOS Keychain"]
-    AUTH -->|API Key| ENV["Environment Variable"]
+    AUTH -->|OAuth Token| OT["CLAUDE_CODE_OAUTH_TOKEN"]
+    AUTH -->|API Key| ENV["ANTHROPIC_API_KEY"]
 
     AUTH --> IMG{"Image Selection"}
     IMG -->|--use-enhanced| ENH["Enhanced Image<br/>Dockerfile.enhanced"]
@@ -531,6 +533,7 @@ docker run -it -v $(pwd):/workspace/project grandcamel/claude-devcontainer:enhan
 | Variable | Description |
 |----------|-------------|
 | `ANTHROPIC_API_KEY` | API key for Claude (with --api-key flag) |
+| `CLAUDE_CODE_OAUTH_TOKEN` | OAuth token for Pro/Max users (with --oauth-token flag, run `claude setup-token`) |
 | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | Set to 1 in container |
 | `CLAUDE_PLUGIN_DIR` | Plugin directory mount point |
 
