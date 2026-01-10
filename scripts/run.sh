@@ -444,6 +444,8 @@ run_devcontainer() {
     # Authentication configuration
     if [[ "$USE_OAUTH_TOKEN" == "true" ]]; then
         docker_args+=("-e" "CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN}")
+        # Mount config with hasCompletedOnboarding: true (required for OAuth token)
+        docker_args+=("-v" "$CLAUDE_CONFIG_TMP_DIR:/home/devuser/.claude")
     elif [[ "$USE_API_KEY" == "true" ]]; then
         docker_args+=("-e" "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}")
     fi

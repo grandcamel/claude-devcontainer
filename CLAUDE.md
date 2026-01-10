@@ -66,10 +66,10 @@ docker run --rm test-enhanced which starship
 
 One of the following authentication methods is required:
 
-1. **OAuth Token** (`--oauth-token`): Uses `CLAUDE_CODE_OAUTH_TOKEN` env var. For Pro/Max users, generate with `claude setup-token`.
+1. **OAuth Token** (`--oauth-token`): Uses `CLAUDE_CODE_OAUTH_TOKEN` env var. For Pro/Max users, generate with `claude setup-token`. The script automatically creates a temp `.claude.json` with `hasCompletedOnboarding: true` (required for OAuth token to work in containers).
 2. **API Key** (`--api-key`): Uses `ANTHROPIC_API_KEY` env var.
 
-The `validate_auth()` function in `lib/container.sh` handles authentication validation.
+The `validate_auth()` function in `lib/container.sh` handles authentication validation and config setup.
 
 ## Team Image Customization
 

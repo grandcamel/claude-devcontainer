@@ -20,6 +20,7 @@ LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$LIB_DIR/.." && pwd)"
 IMAGE_NAME="${CLAUDE_DEVCONTAINER_IMAGE:-claude-devcontainer}"
 IMAGE_TAG="${CLAUDE_DEVCONTAINER_TAG:-latest}"
+CLAUDE_CONFIG_TMP_DIR=""
 
 # Plugin/workspace directory (can be overridden by scripts)
 PLUGIN_DIR="${CLAUDE_PLUGIN_DIR:-}"
@@ -47,12 +48,32 @@ echo_step() { echo -e "${BLUE}==>${NC} ${CYAN}$1${NC}"; }
 
 lib_cleanup() {
     local exit_code=$?
+    if [[ -n "$CLAUDE_CONFIG_TMP_DIR" && -d "$CLAUDE_CONFIG_TMP_DIR" ]]; then
+        rm -rf "$CLAUDE_CONFIG_TMP_DIR"
+    fi
     exit $exit_code
 }
 
 # Set up cleanup trap (call this in your script's init)
 setup_cleanup_trap() {
     trap lib_cleanup EXIT INT TERM
+}
+
+# =============================================================================
+# OAuth Token Config Setup
+# =============================================================================
+
+# Create a temporary .claude directory with config for OAuth token mode
+# This ensures hasCompletedOnboarding is set so Claude Code works properly
+create_oauth_token_config() {
+    CLAUDE_CONFIG_TMP_DIR=$(mktemp -d)
+    cat > "$CLAUDE_CONFIG_TMP_DIR/.claude.json" <<'EOF'
+{
+  "hasCompletedOnboarding": true
+}
+EOF
+    chmod 600 "$CLAUDE_CONFIG_TMP_DIR/.claude.json"
+    echo_info "Created OAuth token config (hasCompletedOnboarding: true)"
 }
 
 # =============================================================================
@@ -78,6 +99,8 @@ validate_auth() {
             echo "  export CLAUDE_CODE_OAUTH_TOKEN='c_oauth_token_...'"
             exit 1
         fi
+        # Create config directory with hasCompletedOnboarding flag
+        create_oauth_token_config
         echo_info "Using OAuth token (Pro/Max subscription)"
     elif [[ "$use_api_key" == "true" ]]; then
         if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
