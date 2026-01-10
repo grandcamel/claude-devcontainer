@@ -20,7 +20,6 @@ LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$LIB_DIR/.." && pwd)"
 IMAGE_NAME="${CLAUDE_DEVCONTAINER_IMAGE:-claude-devcontainer}"
 IMAGE_TAG="${CLAUDE_DEVCONTAINER_TAG:-latest}"
-CREDS_TMP_DIR=""
 
 # Plugin/workspace directory (can be overridden by scripts)
 PLUGIN_DIR="${CLAUDE_PLUGIN_DIR:-}"
@@ -48,9 +47,6 @@ echo_step() { echo -e "${BLUE}==>${NC} ${CYAN}$1${NC}"; }
 
 lib_cleanup() {
     local exit_code=$?
-    if [[ -n "$CREDS_TMP_DIR" && -d "$CREDS_TMP_DIR" ]]; then
-        rm -rf "$CREDS_TMP_DIR"
-    fi
     exit $exit_code
 }
 
@@ -60,93 +56,15 @@ setup_cleanup_trap() {
 }
 
 # =============================================================================
-# API Key from Config
-# =============================================================================
-
-get_api_key_from_config() {
-    local config_paths=(
-        "$HOME/.claude.json"
-        "$HOME/.claude/.claude.json"
-        "${APPDATA:-}/.claude.json"
-        "${APPDATA:-}/claude/.claude.json"
-    )
-
-    for config_path in "${config_paths[@]}"; do
-        if [[ -f "$config_path" ]]; then
-            local api_key
-            api_key=$(jq -r '.primaryApiKey // empty' "$config_path" 2>/dev/null)
-            if [[ -n "$api_key" && "$api_key" != "null" ]]; then
-                echo "$api_key"
-                return 0
-            fi
-        fi
-    done
-
-    echo_error "No primaryApiKey found in .claude.json"
-    echo ""
-    echo "Searched locations:"
-    for config_path in "${config_paths[@]}"; do
-        if [[ -n "$config_path" ]]; then
-            echo "  - $config_path"
-        fi
-    done
-    echo ""
-    echo "Ensure your .claude.json contains:"
-    echo '  { "primaryApiKey": "sk-ant-api03-..." }'
-    return 1
-}
-
-# =============================================================================
-# OAuth Credentials (macOS Keychain)
-# =============================================================================
-
-get_oauth_credentials() {
-    if [[ "$(uname)" != "Darwin" ]]; then
-        echo_error "OAuth mode requires macOS (for Keychain access)"
-        echo "Use --api-key or --api-key-from-config on Linux/Windows."
-        return 1
-    fi
-
-    local creds
-    creds=$(security find-generic-password -a "$USER" -s 'Claude Code-credentials' -w 2>/dev/null) || {
-        echo_error "Cannot access Claude Code credentials in Keychain"
-        echo ""
-        echo "Make sure you're logged into Claude Code:"
-        echo "  claude login"
-        return 1
-    }
-
-    if ! echo "$creds" | jq -e '.claudeAiOauth.accessToken' >/dev/null 2>&1; then
-        echo_error "Invalid credentials format in Keychain"
-        echo "Try logging in again: claude login"
-        return 1
-    fi
-
-    echo "$creds"
-}
-
-create_credentials_dir() {
-    CREDS_TMP_DIR=$(mktemp -d)
-    local creds
-    creds=$(get_oauth_credentials) || return 1
-    echo "$creds" > "$CREDS_TMP_DIR/.credentials.json"
-    chmod 600 "$CREDS_TMP_DIR/.credentials.json"
-    echo_info "OAuth credentials prepared for container"
-    return 0
-}
-
-# =============================================================================
 # Authentication Validation
 # =============================================================================
 
 # Arguments:
 #   $1 - USE_API_KEY (true/false)
-#   $2 - USE_API_KEY_FROM_CONFIG (true/false)
-#   $3 - USE_OAUTH_TOKEN (true/false)
+#   $2 - USE_OAUTH_TOKEN (true/false)
 validate_auth() {
     local use_api_key="${1:-false}"
-    local use_api_key_from_config="${2:-false}"
-    local use_oauth_token="${3:-false}"
+    local use_oauth_token="${2:-false}"
 
     if [[ "$use_oauth_token" == "true" ]]; then
         # OAuth token mode (Pro/Max subscription, long-lived token)
@@ -162,27 +80,23 @@ validate_auth() {
         fi
         echo_info "Using OAuth token (Pro/Max subscription)"
     elif [[ "$use_api_key" == "true" ]]; then
-        if [[ "$use_api_key_from_config" == "true" ]]; then
-            ANTHROPIC_API_KEY=$(get_api_key_from_config) || exit 1
-            export ANTHROPIC_API_KEY
-            echo_info "Using API key from .claude.json"
-        elif [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
+        if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
             echo_error "ANTHROPIC_API_KEY is not set"
             echo ""
             echo "Export your API key:"
             echo "  export ANTHROPIC_API_KEY='sk-ant-api03-...'"
             echo ""
-            echo "Or use --api-key-from-config to read from .claude.json"
-            echo "Or use OAuth mode (default) on macOS."
+            echo "Or use --oauth-token with CLAUDE_CODE_OAUTH_TOKEN"
             exit 1
-        else
-            echo_info "Using API key from environment"
         fi
+        echo_info "Using API key from environment"
     else
-        if ! create_credentials_dir; then
-            exit 1
-        fi
-        echo_info "Using OAuth authentication (free with subscription)"
+        echo_error "No authentication method specified"
+        echo ""
+        echo "Use one of:"
+        echo "  --oauth-token  Use CLAUDE_CODE_OAUTH_TOKEN (Pro/Max, run 'claude setup-token')"
+        echo "  --api-key      Use ANTHROPIC_API_KEY environment variable"
+        exit 1
     fi
 }
 
@@ -224,12 +138,10 @@ ensure_image() {
 # Build base docker args common to all scripts
 # Arguments:
 #   $1 - keep_container (true/false)
-#   $2 - use_api_key (true/false)
-#   $3 - home_user (default: devuser)
+#   $2 - home_user (default: devuser)
 build_base_docker_args() {
     local keep_container="${1:-false}"
-    local use_api_key="${2:-false}"
-    local home_user="${3:-devuser}"
+    local home_user="${2:-devuser}"
 
     local docker_args=("run")
 
@@ -239,13 +151,6 @@ build_base_docker_args() {
 
     # Mount project root (for config access)
     docker_args+=("-v" "$PROJECT_ROOT:/workspace/devcontainer:ro")
-
-    # Authentication configuration
-    if [[ "$use_api_key" == "true" ]]; then
-        docker_args+=("-e" "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}")
-    else
-        docker_args+=("-v" "$CREDS_TMP_DIR:/home/$home_user/.claude")
-    fi
 
     # Enable host.docker.internal
     docker_args+=("--add-host" "host.docker.internal:host-gateway")

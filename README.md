@@ -49,7 +49,7 @@
 │ [INFO] Starting developer container...                        │
 │                                                               │
 │ ✓ Python 3.11, Node.js 20, Go 1.22, Rust ready                │
-│ ✓ Claude Code authenticated via OAuth                         │
+│ ✓ Claude Code ready (bring your token or API key)             │
 │ ✓ Modern CLI: starship, eza, bat, lazygit, neovim             │
 │ ✓ Your project mounted at /workspace/project                  │
 │                                                               │
@@ -185,7 +185,7 @@ You want to code, not write Dockerfiles. You need Python for scripts, Node for f
 |------|----------|
 | Multiple languages | Python 3.11, Node.js 20, Go 1.22, Rust—all ready |
 | Modern tooling | Starship prompt, eza, bat, lazygit, neovim |
-| Claude Code | Pre-installed with OAuth auth (or API key) |
+| Claude Code | Pre-installed (use `--oauth-token` or `--api-key`) |
 | Your project | Mounted and ready at `/workspace/project` |
 | Extra packages | `--pip flask --npm typescript` at runtime |
 
@@ -382,11 +382,9 @@ Additional Packages:
   --npm PKG[,PKG,...]   Install npm packages globally at startup
   --apt PKG[,PKG,...]   Install system packages via apt at startup
 
-Authentication:
-  (default)             Use OAuth from macOS Keychain
+Authentication (required, choose one):
   --oauth-token         Use CLAUDE_CODE_OAUTH_TOKEN (Pro/Max, run 'claude setup-token')
   --api-key             Use ANTHROPIC_API_KEY environment variable
-  --api-key-from-config Use primaryApiKey from ~/.claude.json
 ```
 
 ### Examples
@@ -459,9 +457,8 @@ labels:
 ```mermaid
 flowchart TD
     U["./scripts/run.sh"] --> AUTH{"Authentication"}
-    AUTH -->|OAuth| KC["macOS Keychain"]
-    AUTH -->|OAuth Token| OT["CLAUDE_CODE_OAUTH_TOKEN"]
-    AUTH -->|API Key| ENV["ANTHROPIC_API_KEY"]
+    AUTH -->|--oauth-token| OT["CLAUDE_CODE_OAUTH_TOKEN"]
+    AUTH -->|--api-key| ENV["ANTHROPIC_API_KEY"]
 
     AUTH --> IMG{"Image Selection"}
     IMG -->|--use-enhanced| ENH["Enhanced Image<br/>Dockerfile.enhanced"]
@@ -472,7 +469,6 @@ flowchart TD
 
     RUN --> MOUNT["Mounts"]
     MOUNT --> PROJ["/workspace/project<br/>Your Code"]
-    MOUNT --> CREDS["/home/devuser/.claude<br/>Credentials"]
 
     RUN --> TOOLS["Pre-installed Tools"]
     TOOLS --> LANG["Python, Node.js<br/>Go, Rust"]
@@ -532,8 +528,8 @@ docker run -it -v $(pwd):/workspace/project grandcamel/claude-devcontainer:enhan
 
 | Variable | Description |
 |----------|-------------|
-| `ANTHROPIC_API_KEY` | API key for Claude (with --api-key flag) |
-| `CLAUDE_CODE_OAUTH_TOKEN` | OAuth token for Pro/Max users (with --oauth-token flag, run `claude setup-token`) |
+| `ANTHROPIC_API_KEY` | API key for Claude (use with `--api-key` flag) |
+| `CLAUDE_CODE_OAUTH_TOKEN` | OAuth token for Pro/Max users (use with `--oauth-token` flag, generate via `claude setup-token`) |
 | `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | Set to 1 in container |
 | `CLAUDE_PLUGIN_DIR` | Plugin directory mount point |
 
