@@ -4,29 +4,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a batteries-included developer container optimized for Claude Code. It provides Docker images with pre-installed toolchains (Python, Node.js, Go, Rust), modern CLI tools, and flexible authentication modes (OAuth from macOS Keychain or API key).
+This is a batteries-included developer container optimized for Claude Code. It provides Docker images with pre-installed toolchains (Python, Node.js, Go, Rust), modern CLI tools, and two authentication modes (OAuth Token or API Key).
 
 ## Key Commands
 
 ### Running the Container
 
 ```bash
-# Basic usage (current directory mounted, OAuth auth)
-./scripts/run.sh
-
-# Mount specific project
-./scripts/run.sh --project ~/myproject
+# Mount specific project with OAuth token auth
+./scripts/run.sh --oauth-token --project ~/myproject
 
 # Use pre-built enhanced image (instant startup with modern CLI tools)
-./scripts/run.sh --use-enhanced
+./scripts/run.sh --oauth-token --use-enhanced
 
 # Install additional packages at runtime
-./scripts/run.sh --pip flask,sqlalchemy --npm lodash --apt graphviz
+./scripts/run.sh --oauth-token --pip flask,sqlalchemy --npm lodash --apt graphviz
 
-# Authentication options
-./scripts/run.sh --oauth-token          # uses CLAUDE_CODE_OAUTH_TOKEN (Pro/Max, 'claude setup-token')
-./scripts/run.sh --api-key              # uses ANTHROPIC_API_KEY env var
-./scripts/run.sh --api-key-from-config  # reads from ~/.claude.json
+# Authentication options (one required)
+./scripts/run.sh --oauth-token  # uses CLAUDE_CODE_OAUTH_TOKEN (Pro/Max, generate with 'claude setup-token')
+./scripts/run.sh --api-key      # uses ANTHROPIC_API_KEY env var
 ```
 
 ### Building Images
@@ -68,11 +64,12 @@ docker run --rm test-enhanced which starship
 
 ## Authentication Flow
 
-1. **OAuth (default on macOS)**: Reads credentials from macOS Keychain via `security find-generic-password`, creates temp directory with `.credentials.json`, mounts to container
-2. **OAuth Token**: Uses `CLAUDE_CODE_OAUTH_TOKEN` env var (for Pro/Max users, generate with `claude setup-token`)
-3. **API Key**: Either from `ANTHROPIC_API_KEY` env var or `primaryApiKey` from `~/.claude.json`
+One of the following authentication methods is required:
 
-The `validate_auth()` function in `lib/container.sh` handles all authentication modes.
+1. **OAuth Token** (`--oauth-token`): Uses `CLAUDE_CODE_OAUTH_TOKEN` env var. For Pro/Max users, generate with `claude setup-token`.
+2. **API Key** (`--api-key`): Uses `ANTHROPIC_API_KEY` env var.
+
+The `validate_auth()` function in `lib/container.sh` handles authentication validation.
 
 ## Team Image Customization
 

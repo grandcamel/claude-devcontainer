@@ -11,9 +11,8 @@
 #   Containers: Docker CLI (mount socket for Docker-in-Docker)
 #
 # Authentication modes:
-# 1. OAuth (default) - Uses credentials from macOS Keychain (free with subscription)
-# 2. API Key (--api-key) - Uses ANTHROPIC_API_KEY environment variable (paid)
-# 3. API Key from config (--api-key-from-config) - Reads from ~/.claude.json (paid)
+# 1. OAuth Token (--oauth-token) - Uses CLAUDE_CODE_OAUTH_TOKEN (Pro/Max subscription)
+# 2. API Key (--api-key) - Uses ANTHROPIC_API_KEY environment variable
 #
 # Usage:
 #   ./run.sh [options] [-- command...]
@@ -54,7 +53,6 @@ DEV_IMAGE_TAG="${CLAUDE_DEVCONTAINER_TAG:-latest}"
 
 PROJECT_PATH=""
 USE_API_KEY=false
-USE_API_KEY_FROM_CONFIG=false
 USE_OAUTH_TOKEN=false
 BUILD_IMAGE=false
 MOUNT_DOCKER=false
@@ -87,11 +85,6 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         --api-key)
-            USE_API_KEY=true
-            shift
-            ;;
-        --api-key-from-config)
-            USE_API_KEY_FROM_CONFIG=true
             USE_API_KEY=true
             shift
             ;;
@@ -227,11 +220,9 @@ while [[ $# -gt 0 ]]; do
             echo "                        - tmux (configured), neovim + kickstart"
             echo "                        - direnv (per-directory environments)"
             echo ""
-            echo "Authentication (choose one):"
-            echo "  (default)              Use OAuth from macOS Keychain (free with subscription)"
+            echo "Authentication (required, choose one):"
             echo "  --oauth-token          Use CLAUDE_CODE_OAUTH_TOKEN (Pro/Max, run 'claude setup-token')"
-            echo "  --api-key              Use ANTHROPIC_API_KEY environment variable (paid)"
-            echo "  --api-key-from-config  Use primaryApiKey from ~/.claude.json (paid)"
+            echo "  --api-key              Use ANTHROPIC_API_KEY environment variable"
             echo ""
             echo "Examples:"
             echo "  # Interactive shell with current directory"
@@ -455,8 +446,6 @@ run_devcontainer() {
         docker_args+=("-e" "CLAUDE_CODE_OAUTH_TOKEN=${CLAUDE_CODE_OAUTH_TOKEN}")
     elif [[ "$USE_API_KEY" == "true" ]]; then
         docker_args+=("-e" "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}")
-    else
-        docker_args+=("-v" "$CREDS_TMP_DIR:/home/devuser/.claude")
     fi
 
     # Enable host.docker.internal
@@ -593,7 +582,7 @@ main() {
     echo ""
 
     setup_cleanup_trap
-    validate_auth "$USE_API_KEY" "$USE_API_KEY_FROM_CONFIG" "$USE_OAUTH_TOKEN"
+    validate_auth "$USE_API_KEY" "$USE_OAUTH_TOKEN"
     ensure_dev_image "$BUILD_IMAGE" "$PUSH_IMAGE"
     run_devcontainer
 
