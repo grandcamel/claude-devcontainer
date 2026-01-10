@@ -84,6 +84,19 @@ Create a YAML config file (see `examples/team-config.yaml`) specifying:
 
 The `build-team-image.sh` script parses YAML using embedded Python and generates a Dockerfile.team that can be version-controlled.
 
+## Git Workflow
+
+- **Never push directly to `main`** — Always create a PR branch
+- **Rebase merge only** — Maintain linear history
+- **Delete branches after merge**
+
+```bash
+git checkout -b feature/my-change
+git push -u origin feature/my-change
+gh pr create
+gh pr merge --rebase --delete-branch
+```
+
 ## CI/CD
 
 GitHub Actions workflow (`.github/workflows/docker-build.yml`) builds both base and enhanced images on push to main, uses Docker layer caching, and runs basic validation tests on PRs.

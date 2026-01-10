@@ -29,7 +29,6 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # =============================================================================
 # Colors and Output Helpers
@@ -274,14 +273,14 @@ if [[ "$SKIP_LOGIN" != "true" ]]; then
     if [[ -z "$REGISTRY_USER" ]]; then
         REGISTRY_USER="${REGISTRY_USER:-$REGISTRY_USER_ENV}"
         if [[ -z "$REGISTRY_USER" ]]; then
-            read -p "  Username: " REGISTRY_USER
+            read -r -p "  Username: " REGISTRY_USER
         fi
     fi
 
     if [[ -z "$REGISTRY_TOKEN" ]]; then
         REGISTRY_TOKEN="${REGISTRY_TOKEN:-$REGISTRY_TOKEN_ENV}"
         if [[ -z "$REGISTRY_TOKEN" ]]; then
-            read -s -p "  Password/Token: " REGISTRY_TOKEN
+            read -rs -p "  Password/Token: " REGISTRY_TOKEN
             echo ""
         fi
     fi
