@@ -2,12 +2,6 @@
 #
 # Shared library for claude-devcontainer scripts
 #
-# This file contains common functions used by:
-#   - run.sh (main developer container)
-#   - run-sandboxed.sh (restricted tool access)
-#   - run-workspace.sh (hybrid workflows)
-#   - run-tests.sh (CI test patterns)
-#
 # Usage: source this file at the top of each script
 #   source "$(dirname "${BASH_SOURCE[0]}")/../lib/container.sh"
 #
@@ -124,79 +118,8 @@ validate_auth() {
 }
 
 # =============================================================================
-# Docker Image Management
+# Docker Helpers
 # =============================================================================
-
-build_image() {
-    local dockerfile="${1:-$PROJECT_ROOT/Dockerfile}"
-    echo_info "Building Docker image: $IMAGE_NAME:$IMAGE_TAG"
-    docker build \
-        -t "$IMAGE_NAME:$IMAGE_TAG" \
-        -f "$dockerfile" \
-        "$PROJECT_ROOT"
-    echo_info "Image built successfully"
-}
-
-check_image() {
-    if ! docker image inspect "$IMAGE_NAME:$IMAGE_TAG" &>/dev/null; then
-        echo_warn "Image not found, building..."
-        build_image
-    fi
-}
-
-ensure_image() {
-    local force_build="${1:-false}"
-    local dockerfile="${2:-}"
-    if [[ "$force_build" == "true" ]]; then
-        build_image "$dockerfile"
-    else
-        check_image
-    fi
-}
-
-# =============================================================================
-# Docker Run Helpers
-# =============================================================================
-
-# Build base docker args common to all scripts
-# Arguments:
-#   $1 - keep_container (true/false)
-#   $2 - home_user (default: devuser)
-build_base_docker_args() {
-    local keep_container="${1:-false}"
-    local home_user="${2:-devuser}"
-
-    local docker_args=("run")
-
-    if [[ "$keep_container" != "true" ]]; then
-        docker_args+=("--rm")
-    fi
-
-    # Mount project root (for config access)
-    docker_args+=("-v" "$PROJECT_ROOT:/workspace/devcontainer:ro")
-
-    # Enable host.docker.internal
-    docker_args+=("--add-host" "host.docker.internal:host-gateway")
-
-    # Container-specific environment
-    docker_args+=(
-        "-e" "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1"
-        "-e" "CLAUDE_CODE_ACTION=bypassPermissions"
-        "-e" "OTLP_HTTP_ENDPOINT=http://host.docker.internal:4318"
-        "-e" "TERM=xterm-256color"
-    )
-
-    # Plugin directory (if specified)
-    if [[ -n "$PLUGIN_DIR" ]]; then
-        docker_args+=(
-            "-v" "$PLUGIN_DIR:/workspace/plugin:ro"
-            "-e" "CLAUDE_PLUGIN_DIR=/workspace/plugin"
-        )
-    fi
-
-    # Return args by printing (caller captures with $())
-    printf '%s\n' "${docker_args[@]}"
-}
 
 # Add model environment variable
 # Arguments:
@@ -217,33 +140,4 @@ get_model_env() {
             echo "ANTHROPIC_MODEL=$model"
             ;;
     esac
-}
-
-# =============================================================================
-# Pytest Args Helper
-# =============================================================================
-
-# Quote pytest args for shell execution
-# Arguments:
-#   $@ - pytest args array
-quote_pytest_args() {
-    local quoted=""
-    for arg in "$@"; do
-        local escaped_arg
-        escaped_arg=$(printf '%s' "$arg" | sed "s/'/'\\\\''/g")
-        quoted+=" '$escaped_arg'"
-    done
-    echo "$quoted"
-}
-
-# =============================================================================
-# Version Information
-# =============================================================================
-
-get_version() {
-    if [[ -f "$PROJECT_ROOT/VERSION" ]]; then
-        cat "$PROJECT_ROOT/VERSION"
-    else
-        echo "dev"
-    fi
 }
