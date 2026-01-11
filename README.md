@@ -492,7 +492,6 @@ claude-devcontainer/
 ├── config/
 │   ├── starship.toml       # Prompt configuration
 │   ├── tmux.conf           # Tmux configuration
-│   └── setup-enhanced.sh   # Runtime enhancement
 └── examples/
     └── team-config.yaml    # Team config template
 ```

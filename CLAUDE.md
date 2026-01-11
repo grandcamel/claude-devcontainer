@@ -60,7 +60,7 @@ docker run --rm test-enhanced which starship
 - **lib/container.sh**: Shared shell functions for authentication, image management, and Docker run helpers
 - **scripts/run.sh**: Main entry point that handles argument parsing, authentication validation, and container execution
 - **scripts/build-team-image.sh**: Generates customized Dockerfiles from YAML configs (parses YAML with embedded Python)
-- **config/**: Configuration files copied into enhanced images (starship.toml, tmux.conf, setup-enhanced.sh)
+- **config/**: Configuration files copied into enhanced images (starship.toml, tmux.conf)
 
 ## Authentication Flow
 

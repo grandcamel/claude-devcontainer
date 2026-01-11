@@ -67,7 +67,6 @@ COMMAND_ARGS=()
 PIP_PACKAGES=()
 NPM_PACKAGES=()
 APT_PACKAGES=()
-ENHANCED_MODE=false
 CLAUDE_VERSION=""
 CUSTOM_IMAGE=""
 CUSTOM_TAG=""
@@ -143,10 +142,6 @@ while [[ $# -gt 0 ]]; do
             APT_PACKAGES+=("${pkgs[@]}")
             shift 2
             ;;
-        --enhanced)
-            ENHANCED_MODE=true
-            shift
-            ;;
         --claude-version)
             CLAUDE_VERSION="$2"
             shift 2
@@ -211,15 +206,6 @@ while [[ $# -gt 0 ]]; do
             echo "  --npm PKG[,PKG,...]   Install npm packages globally (can be used multiple times)"
             echo "  --apt PKG[,PKG,...]   Install system packages via apt (can be used multiple times)"
             echo ""
-            echo "Enhanced Mode:"
-            echo "  --enhanced            Install enhanced CLI tools at runtime:"
-            echo "                        - Starship prompt (fast, customizable)"
-            echo "                        - eza (modern ls), bat (cat with highlighting)"
-            echo "                        - delta (better git diff), zoxide (smart cd)"
-            echo "                        - btop (system monitor), lazygit (git TUI)"
-            echo "                        - tmux (configured), neovim + kickstart"
-            echo "                        - direnv (per-directory environments)"
-            echo ""
             echo "Authentication (required, choose one):"
             echo "  --oauth-token          Use CLAUDE_CODE_OAUTH_TOKEN (Pro/Max, run 'claude setup-token')"
             echo "  --api-key              Use ANTHROPIC_API_KEY environment variable"
@@ -246,10 +232,6 @@ while [[ $# -gt 0 ]]; do
             echo "  # Install additional packages"
             echo "  $0 --pip flask,sqlalchemy --npm lodash"
             echo "  $0 --apt graphviz --pip pydot"
-            echo ""
-            echo "  # Enhanced mode with modern CLI tools"
-            echo "  $0 --enhanced"
-            echo "  $0 --enhanced --project ~/myproject --persist-cache"
             echo ""
             echo "  # Use specific Claude Code version"
             echo "  $0 --claude-version 2.0.69"
@@ -390,8 +372,6 @@ run_devcontainer() {
 
     if [[ "$USE_ENHANCED_IMAGE" == "true" ]]; then
         echo_status "DEV" "Using pre-built enhanced image (instant startup)"
-    elif [[ "$ENHANCED_MODE" == "true" ]]; then
-        echo_status "DEV" "Enhanced mode: starship, eza, bat, delta, zoxide, btop, lazygit, tmux, neovim, direnv"
     fi
 
     if [[ -n "$CLAUDE_VERSION" ]]; then
@@ -422,11 +402,6 @@ run_devcontainer() {
     # Container name
     if [[ -n "$CONTAINER_NAME" ]]; then
         docker_args+=("--name" "$CONTAINER_NAME")
-    fi
-
-    # Mount config directory if enhanced mode (for runtime setup)
-    if [[ "$ENHANCED_MODE" == "true" ]] && [[ "$USE_ENHANCED_IMAGE" != "true" ]]; then
-        docker_args+=("-v" "$PROJECT_ROOT/config:/workspace/config:ro")
     fi
 
     # Mount project directory
@@ -505,12 +480,6 @@ run_devcontainer() {
 
     # Build initialization commands for package installation
     local init_commands=()
-
-    # Enhanced mode setup (run first for best experience)
-    # Skip if using pre-built enhanced image (tools already installed)
-    if [[ "$ENHANCED_MODE" == "true" ]] && [[ "$USE_ENHANCED_IMAGE" != "true" ]]; then
-        init_commands+=("/workspace/config/setup-enhanced.sh")
-    fi
 
     # Apt packages (requires sudo, run first)
     if [[ ${#APT_PACKAGES[@]} -gt 0 ]]; then
