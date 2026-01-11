@@ -255,20 +255,14 @@ fi
 if [[ "$SKIP_LOGIN" != "true" ]]; then
     echo_step "Authenticating to registry: $REGISTRY"
 
-    # Get credentials from env or prompt
+    # Get credentials from args or prompt
     if [[ -z "$REGISTRY_USER" ]]; then
-        REGISTRY_USER="${REGISTRY_USER:-$REGISTRY_USER_ENV}"
-        if [[ -z "$REGISTRY_USER" ]]; then
-            read -r -p "  Username: " REGISTRY_USER
-        fi
+        read -r -p "  Username: " REGISTRY_USER
     fi
 
     if [[ -z "$REGISTRY_TOKEN" ]]; then
-        REGISTRY_TOKEN="${REGISTRY_TOKEN:-$REGISTRY_TOKEN_ENV}"
-        if [[ -z "$REGISTRY_TOKEN" ]]; then
-            read -rs -p "  Password/Token: " REGISTRY_TOKEN
-            echo ""
-        fi
+        read -rs -p "  Password/Token: " REGISTRY_TOKEN
+        echo ""
     fi
 
     if [[ "$DRY_RUN" == "true" ]]; then
