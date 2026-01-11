@@ -12,8 +12,12 @@
 
 LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$LIB_DIR/.." && pwd)"
-IMAGE_NAME="${CLAUDE_DEVCONTAINER_IMAGE:-claude-devcontainer}"
-IMAGE_TAG="${CLAUDE_DEVCONTAINER_TAG:-latest}"
+
+# Default image name (can be overridden via env vars)
+DEFAULT_IMAGE_NAME="grandcamel/claude-devcontainer"
+DEFAULT_IMAGE_TAG="latest"
+IMAGE_NAME="${CLAUDE_DEVCONTAINER_IMAGE:-$DEFAULT_IMAGE_NAME}"
+IMAGE_TAG="${CLAUDE_DEVCONTAINER_TAG:-$DEFAULT_IMAGE_TAG}"
 CLAUDE_CONFIG_TMP_DIR=""
 
 # Plugin/workspace directory (can be overridden by scripts)

@@ -24,41 +24,15 @@
 
 set -e
 
+# Source shared library for colors and common functions
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
-
-# =============================================================================
-# Colors and Output Helpers
-# =============================================================================
-
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m'
-
-echo_info() {
-    echo -e "${GREEN}[INFO]${NC} $1"
-}
-
-echo_warn() {
-    echo -e "${YELLOW}[WARN]${NC} $1"
-}
-
-echo_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-echo_step() {
-    echo -e "${BLUE}==>${NC} ${CYAN}$1${NC}"
-}
+source "$SCRIPT_DIR/../lib/container.sh"
 
 # =============================================================================
 # Configuration
 # =============================================================================
 
-IMAGE_NAME="grandcamel/claude-devcontainer"
+# IMAGE_NAME comes from lib/container.sh (DEFAULT_IMAGE_NAME)
 IMAGE_TAG="enhanced"
 PUSH_IMAGE=false
 CA_CERT=""

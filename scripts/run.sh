@@ -43,9 +43,9 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../lib/container.sh"
 
-# Override image name for dev container
-DEV_IMAGE_NAME="${CLAUDE_DEVCONTAINER_IMAGE:-grandcamel/claude-devcontainer}"
-DEV_IMAGE_TAG="${CLAUDE_DEVCONTAINER_TAG:-latest}"
+# Use image name from lib (can be overridden via env vars or flags)
+DEV_IMAGE_NAME="$IMAGE_NAME"
+DEV_IMAGE_TAG="$IMAGE_TAG"
 
 # =============================================================================
 # Script-specific Configuration
@@ -269,19 +269,19 @@ PROJECT_PATH="$(cd "$PROJECT_PATH" 2>/dev/null && pwd)" || {
     exit 1
 }
 
-# Apply --use-enhanced (overrides defaults, but custom image/tag take precedence)
+# Determine which Dockerfile to use (set once, used by build_dev_image)
+USE_ENHANCED_DOCKERFILE=false
+
+# Apply --use-enhanced
 if [[ "$USE_ENHANCED_IMAGE" == "true" ]]; then
-    DEV_IMAGE_NAME="grandcamel/claude-devcontainer"
+    DEV_IMAGE_NAME="$DEFAULT_IMAGE_NAME"
     DEV_IMAGE_TAG="enhanced"
+    USE_ENHANCED_DOCKERFILE=true
 fi
 
-# Apply custom image name/tag if specified (takes precedence over --use-enhanced)
-if [[ -n "$CUSTOM_IMAGE" ]]; then
-    DEV_IMAGE_NAME="$CUSTOM_IMAGE"
-fi
-if [[ -n "$CUSTOM_TAG" ]]; then
-    DEV_IMAGE_TAG="$CUSTOM_TAG"
-fi
+# Apply custom image/tag (takes precedence)
+[[ -n "$CUSTOM_IMAGE" ]] && DEV_IMAGE_NAME="$CUSTOM_IMAGE"
+[[ -n "$CUSTOM_TAG" ]] && DEV_IMAGE_TAG="$CUSTOM_TAG"
 
 # Validate --push requires --build
 if [[ "$PUSH_IMAGE" == "true" ]] && [[ "$BUILD_IMAGE" != "true" ]]; then
@@ -295,43 +295,20 @@ fi
 
 build_dev_image() {
     local dockerfile="$PROJECT_ROOT/Dockerfile"
-
-    # Use enhanced Dockerfile if building enhanced image
-    if [[ "$USE_ENHANCED_IMAGE" == "true" ]] || [[ "$DEV_IMAGE_NAME" == *"enhanced"* ]] || [[ "$DEV_IMAGE_TAG" == "enhanced" ]]; then
-        dockerfile="$PROJECT_ROOT/Dockerfile.enhanced"
-    fi
+    [[ "$USE_ENHANCED_DOCKERFILE" == "true" ]] && dockerfile="$PROJECT_ROOT/Dockerfile.enhanced"
 
     echo_info "Building developer container image: $DEV_IMAGE_NAME:$DEV_IMAGE_TAG"
-    docker build \
-        -t "$DEV_IMAGE_NAME:$DEV_IMAGE_TAG" \
-        -f "$dockerfile" \
-        "$PROJECT_ROOT"
+    docker build -t "$DEV_IMAGE_NAME:$DEV_IMAGE_TAG" -f "$dockerfile" "$PROJECT_ROOT"
     echo_info "Image built successfully"
 }
 
-push_dev_image() {
-    echo_info "Pushing image to registry: $DEV_IMAGE_NAME:$DEV_IMAGE_TAG"
-    docker push "$DEV_IMAGE_NAME:$DEV_IMAGE_TAG"
-    echo_info "Image pushed successfully"
-}
-
-check_dev_image() {
-    if ! docker image inspect "$DEV_IMAGE_NAME:$DEV_IMAGE_TAG" &>/dev/null; then
+ensure_dev_image() {
+    if [[ "$BUILD_IMAGE" == "true" ]]; then
+        build_dev_image
+        [[ "$PUSH_IMAGE" == "true" ]] && docker push "$DEV_IMAGE_NAME:$DEV_IMAGE_TAG" && echo_info "Image pushed"
+    elif ! docker image inspect "$DEV_IMAGE_NAME:$DEV_IMAGE_TAG" &>/dev/null; then
         echo_warn "Dev image not found, building (this may take several minutes)..."
         build_dev_image
-    fi
-}
-
-ensure_dev_image() {
-    local force_build="$1"
-    local push_after_build="$2"
-    if [[ "$force_build" == "true" ]]; then
-        build_dev_image
-        if [[ "$push_after_build" == "true" ]]; then
-            push_dev_image
-        fi
-    else
-        check_dev_image
     fi
 }
 
@@ -554,7 +531,7 @@ main() {
 
     setup_cleanup_trap
     validate_auth "$USE_API_KEY" "$USE_OAUTH_TOKEN"
-    ensure_dev_image "$BUILD_IMAGE" "$PUSH_IMAGE"
+    ensure_dev_image
     run_devcontainer
 
     if [[ "$DETACH" != "true" ]]; then
