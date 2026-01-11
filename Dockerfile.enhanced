@@ -365,9 +365,6 @@ RUN echo '' >> ~/.bashrc && \
 ENV CLAUDE_CONFIG_DIR=/home/$USERNAME/.claude
 ENV CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1
 
-# Mark as enhanced image
-ENV JIRA_SKILLS_DEV_ENHANCED=true
-
 # =============================================================================
 # Working Directory & Entrypoint
 # =============================================================================
