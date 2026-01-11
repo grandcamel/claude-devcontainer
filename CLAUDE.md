@@ -57,7 +57,7 @@ docker run --rm test-enhanced which starship
 
 - **Dockerfile**: Base image with Python, Node.js, Go, Rust, AWS CLI, database clients
 - **Dockerfile.enhanced**: Extended image with modern CLI tools (starship, eza, bat, delta, zoxide, btop, lazygit, tmux, neovim)
-- **lib/container.sh**: Shared shell functions for authentication, image management, and Docker run helpers
+- **lib/container.sh**: Shared shell functions for authentication and Docker run helpers
 - **scripts/run.sh**: Main entry point that handles argument parsing, authentication validation, and container execution
 - **scripts/build-team-image.sh**: Generates customized Dockerfiles from YAML configs (parses YAML with embedded Python)
 - **config/**: Configuration files copied into enhanced images (starship.toml, tmux.conf)
