@@ -253,9 +253,10 @@ RUN echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/$USERNAME \
 # =============================================================================
 COPY config/starship.toml /home/$USERNAME/.config/starship.toml
 COPY config/tmux.conf /home/$USERNAME/.tmux.conf
+COPY config/bashrc-enhanced /home/$USERNAME/.bashrc-enhanced
 
 # Set ownership
-RUN chown -R $USER_UID:$USER_GID /home/$USERNAME/.config /home/$USERNAME/.tmux.conf
+RUN chown -R $USER_UID:$USER_GID /home/$USERNAME/.config /home/$USERNAME/.tmux.conf /home/$USERNAME/.bashrc-enhanced
 
 USER $USERNAME
 WORKDIR /home/$USERNAME
@@ -307,59 +308,7 @@ RUN PROFILE_CONTENT=$(cat ~/.profile) && \
 # =============================================================================
 # Shell Configuration with Enhanced Tools
 # =============================================================================
-RUN echo '' >> ~/.bashrc && \
-    echo '# =============================================================================' >> ~/.bashrc && \
-    echo '# Enhanced Developer Environment (Pre-configured)' >> ~/.bashrc && \
-    echo '# =============================================================================' >> ~/.bashrc && \
-    echo '' >> ~/.bashrc && \
-    echo '# Starship prompt' >> ~/.bashrc && \
-    echo 'eval "$(starship init bash)"' >> ~/.bashrc && \
-    echo '' >> ~/.bashrc && \
-    echo '# Zoxide (smart cd)' >> ~/.bashrc && \
-    echo 'eval "$(zoxide init bash)"' >> ~/.bashrc && \
-    echo 'alias cd="z"' >> ~/.bashrc && \
-    echo '' >> ~/.bashrc && \
-    echo '# Direnv' >> ~/.bashrc && \
-    echo 'eval "$(direnv hook bash)"' >> ~/.bashrc && \
-    echo '' >> ~/.bashrc && \
-    echo '# Modern CLI aliases' >> ~/.bashrc && \
-    echo 'alias ls="eza --icons"' >> ~/.bashrc && \
-    echo 'alias ll="eza -la --icons --git"' >> ~/.bashrc && \
-    echo 'alias la="eza -a --icons"' >> ~/.bashrc && \
-    echo 'alias lt="eza --tree --icons --level=2"' >> ~/.bashrc && \
-    echo 'alias tree="eza --tree --icons"' >> ~/.bashrc && \
-    echo '' >> ~/.bashrc && \
-    echo 'alias cat="bat --paging=never"' >> ~/.bashrc && \
-    echo 'alias catp="bat"' >> ~/.bashrc && \
-    echo 'export MANPAGER="sh -c '\''col -bx | bat -l man -p'\''"' >> ~/.bashrc && \
-    echo '' >> ~/.bashrc && \
-    echo 'alias top="btop"' >> ~/.bashrc && \
-    echo '' >> ~/.bashrc && \
-    echo '# Git aliases' >> ~/.bashrc && \
-    echo 'alias lg="lazygit"' >> ~/.bashrc && \
-    echo 'alias gst="git status"' >> ~/.bashrc && \
-    echo 'alias gd="git diff"' >> ~/.bashrc && \
-    echo 'alias gds="git diff --staged"' >> ~/.bashrc && \
-    echo 'alias glog="git log --oneline --graph --decorate -20"' >> ~/.bashrc && \
-    echo '' >> ~/.bashrc && \
-    echo '# Useful shortcuts' >> ~/.bashrc && \
-    echo 'alias cls="clear"' >> ~/.bashrc && \
-    echo 'alias ..="cd .."' >> ~/.bashrc && \
-    echo 'alias ...="cd ../.."' >> ~/.bashrc && \
-    echo 'alias ....="cd ../../.."' >> ~/.bashrc && \
-    echo 'alias mkdir="mkdir -pv"' >> ~/.bashrc && \
-    echo 'alias path="echo -e \${PATH//:/\\\\n}"' >> ~/.bashrc && \
-    echo '' >> ~/.bashrc && \
-    echo '# Enhanced history' >> ~/.bashrc && \
-    echo 'export HISTSIZE=10000' >> ~/.bashrc && \
-    echo 'export HISTFILESIZE=20000' >> ~/.bashrc && \
-    echo 'export HISTCONTROL=ignoreboth:erasedups' >> ~/.bashrc && \
-    echo 'shopt -s histappend' >> ~/.bashrc && \
-    echo '' >> ~/.bashrc && \
-    echo '# Better tab completion' >> ~/.bashrc && \
-    echo "bind 'set show-all-if-ambiguous on'" >> ~/.bashrc && \
-    echo "bind 'set completion-ignore-case on'" >> ~/.bashrc && \
-    echo "bind 'TAB:menu-complete'" >> ~/.bashrc
+RUN cat ~/.bashrc-enhanced >> ~/.bashrc && rm ~/.bashrc-enhanced
 
 # Claude Code config
 ENV CLAUDE_CONFIG_DIR=/home/$USERNAME/.claude

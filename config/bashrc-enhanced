@@ -1,0 +1,52 @@
+# =============================================================================
+# Enhanced Developer Environment (Pre-configured)
+# =============================================================================
+
+# Starship prompt
+eval "$(starship init bash)"
+
+# Zoxide (smart cd)
+eval "$(zoxide init bash)"
+alias cd="z"
+
+# Direnv
+eval "$(direnv hook bash)"
+
+# Modern CLI aliases
+alias ls="eza --icons"
+alias ll="eza -la --icons --git"
+alias la="eza -a --icons"
+alias lt="eza --tree --icons --level=2"
+alias tree="eza --tree --icons"
+
+alias cat="bat --paging=never"
+alias catp="bat"
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+
+alias top="btop"
+
+# Git aliases
+alias lg="lazygit"
+alias gst="git status"
+alias gd="git diff"
+alias gds="git diff --staged"
+alias glog="git log --oneline --graph --decorate -20"
+
+# Useful shortcuts
+alias cls="clear"
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias mkdir="mkdir -pv"
+alias path='echo -e ${PATH//:/\\n}'
+
+# Enhanced history
+export HISTSIZE=10000
+export HISTFILESIZE=20000
+export HISTCONTROL=ignoreboth:erasedups
+shopt -s histappend
+
+# Better tab completion
+bind 'set show-all-if-ambiguous on'
+bind 'set completion-ignore-case on'
+bind 'TAB:menu-complete'
