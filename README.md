@@ -370,6 +370,7 @@ Options:
   --build               Rebuild Docker image before running
   --model NAME          Claude model (sonnet, haiku, opus)
   --claude-version VER  Use specific Claude Code version
+  --plugin-dir PATH     Mount a Claude Code plugin directory
 
 Custom Image:
   --image NAME          Custom image name
