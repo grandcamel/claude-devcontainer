@@ -70,7 +70,6 @@ APT_PACKAGES=()
 CLAUDE_VERSION=""
 CUSTOM_IMAGE=""
 CUSTOM_TAG=""
-PUSH_IMAGE=false
 USE_ENHANCED_IMAGE=false
 
 # =============================================================================
@@ -154,10 +153,6 @@ while [[ $# -gt 0 ]]; do
             CUSTOM_TAG="$2"
             shift 2
             ;;
-        --push)
-            PUSH_IMAGE=true
-            shift
-            ;;
         --use-enhanced)
             USE_ENHANCED_IMAGE=true
             shift
@@ -197,7 +192,6 @@ while [[ $# -gt 0 ]]; do
             echo "Custom Image (for private registries):"
             echo "  --image NAME          Custom image name (e.g., registry.company.com/team/dev)"
             echo "  --tag TAG             Custom image tag (default: latest)"
-            echo "  --push                Push image to registry after building (requires --build)"
             echo "  --use-enhanced        Use pre-built enhanced image (instant startup)"
             echo "                        Build with: ./build-enhanced.sh"
             echo ""
@@ -235,9 +229,6 @@ while [[ $# -gt 0 ]]; do
             echo ""
             echo "  # Use specific Claude Code version"
             echo "  $0 --claude-version 2.0.69"
-            echo ""
-            echo "  # Build and push to private registry"
-            echo "  $0 --build --image registry.company.com/team/claude-dev --tag v1.0 --push"
             echo ""
             echo "  # Use image from private registry"
             echo "  $0 --image registry.company.com/team/claude-dev --tag v1.0"
@@ -283,12 +274,6 @@ fi
 [[ -n "$CUSTOM_IMAGE" ]] && DEV_IMAGE_NAME="$CUSTOM_IMAGE"
 [[ -n "$CUSTOM_TAG" ]] && DEV_IMAGE_TAG="$CUSTOM_TAG"
 
-# Validate --push requires --build
-if [[ "$PUSH_IMAGE" == "true" ]] && [[ "$BUILD_IMAGE" != "true" ]]; then
-    echo_error "--push requires --build flag"
-    exit 1
-fi
-
 # =============================================================================
 # Image Management
 # =============================================================================
@@ -305,7 +290,6 @@ build_dev_image() {
 ensure_dev_image() {
     if [[ "$BUILD_IMAGE" == "true" ]]; then
         build_dev_image
-        [[ "$PUSH_IMAGE" == "true" ]] && docker push "$DEV_IMAGE_NAME:$DEV_IMAGE_TAG" && echo_info "Image pushed"
     elif ! docker image inspect "$DEV_IMAGE_NAME:$DEV_IMAGE_TAG" &>/dev/null; then
         echo_warn "Dev image not found, building (this may take several minutes)..."
         build_dev_image
