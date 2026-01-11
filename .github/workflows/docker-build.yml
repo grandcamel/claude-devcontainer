@@ -110,7 +110,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build base image
-        run: docker build -t test-base -f Dockerfile .
+        run: docker build --no-cache -t test-base -f Dockerfile .
 
       - name: Test base toolchains
         run: |
@@ -137,7 +137,7 @@ jobs:
           docker run --rm test-base python3 -c "import pandas; print(f'pandas {pandas.__version__}')"
 
       - name: Build enhanced image
-        run: docker build -t test-enhanced -f Dockerfile.enhanced .
+        run: docker build --no-cache -t test-enhanced -f Dockerfile.enhanced .
 
       - name: Test enhanced CLI tools
         run: |
