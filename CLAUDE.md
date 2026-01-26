@@ -62,6 +62,23 @@ docker run --rm test-enhanced which starship
 - **scripts/build-team-image.sh**: Generates customized Dockerfiles from YAML configs (parses YAML with embedded Python)
 - **config/**: Configuration files copied into enhanced images (starship.toml, tmux.conf)
 
+## Code Conventions
+
+### Dockerfile Patterns
+- **Dockerfile.enhanced inherits from base**: Uses `FROM grandcamel/claude-devcontainer:latest` to avoid duplicating base setup
+- **Config files over echo chains**: Multi-line configurations go in `config/` directory and are COPYed in, not built with echo commands
+
+### Shell Script Patterns
+- **Source shared library**: All scripts in `scripts/` should `source "$SCRIPT_DIR/../lib/container.sh"` for colors and common functions
+- **Constants in lib/container.sh**: DEFAULT_IMAGE_NAME, DEFAULT_IMAGE_TAG, and other shared constants defined once
+- **No dead code**: Remove flags, variables, and code paths that aren't fully implemented
+
+### Common Mistakes to Avoid
+- Don't duplicate base Dockerfile content in extended images
+- Don't hardcode the same value (like image names) in multiple files
+- Don't add argument parsing for features that aren't implemented
+- Don't reference environment variables that don't exist
+
 ## Authentication Flow
 
 One of the following authentication methods is required:
