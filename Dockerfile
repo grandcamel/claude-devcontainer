@@ -35,6 +35,9 @@ ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/ca-certificates.crt
 # =============================================================================
 # Core Development Tools
 # =============================================================================
+# Upgrade existing packages to get security patches
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     # Python ecosystem
     python3 \
@@ -91,7 +94,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # =============================================================================
 # Go Language
 # =============================================================================
-ARG GO_VERSION=1.22.0
+ARG GO_VERSION=1.23.12
 RUN curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" | tar -C /usr/local -xzf -
 ENV PATH="/usr/local/go/bin:$PATH"
 ENV GOPATH="/home/devuser/go"
@@ -156,7 +159,7 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | d
     && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
     && apt-get update \
-    && apt-get install -y gh \
+    && apt-get install -y --no-install-recommends gh \
     && rm -rf /var/lib/apt/lists/*
 
 # =============================================================================
