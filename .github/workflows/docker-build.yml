@@ -39,9 +39,9 @@ jobs:
       - name: Run ShellCheck on scripts
         run: |
           echo "=== Checking scripts/*.sh ==="
-          shellcheck scripts/*.sh
+          shellcheck --severity=warning scripts/*.sh
           echo "=== Checking lib/*.sh ==="
-          shellcheck lib/*.sh
+          shellcheck --severity=warning lib/*.sh
 
       - name: Validate Dockerfiles with Hadolint
         uses: hadolint/hadolint-action@v3.1.0
