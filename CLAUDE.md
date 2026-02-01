@@ -65,15 +65,18 @@ docker run --rm test-enhanced which starship
 ## Code Conventions
 
 ### Dockerfile Patterns
+
 - **Dockerfile.enhanced inherits from base**: Uses `FROM grandcamel/claude-devcontainer:latest` to avoid duplicating base setup
 - **Config files over echo chains**: Multi-line configurations go in `config/` directory and are COPYed in, not built with echo commands
 
 ### Shell Script Patterns
+
 - **Source shared library**: All scripts in `scripts/` should `source "$SCRIPT_DIR/../lib/container.sh"` for colors and common functions
 - **Constants in lib/container.sh**: DEFAULT_IMAGE_NAME, DEFAULT_IMAGE_TAG, and other shared constants defined once
 - **No dead code**: Remove flags, variables, and code paths that aren't fully implemented
 
 ### Common Mistakes to Avoid
+
 - Don't duplicate base Dockerfile content in extended images
 - Don't hardcode the same value (like image names) in multiple files
 - Don't add argument parsing for features that aren't implemented
@@ -91,6 +94,7 @@ The `validate_auth()` function in `lib/container.sh` handles authentication vali
 ## Team Image Customization
 
 Create a YAML config file (see `examples/team-config.yaml`) specifying:
+
 - Base image and output image name/tag
 - Corporate CA certificate
 - pip, npm, apt packages to pre-install

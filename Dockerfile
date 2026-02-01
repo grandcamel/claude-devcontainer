@@ -94,11 +94,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # =============================================================================
 # Go Language
 # =============================================================================
-ARG GO_VERSION=1.23.12
+ARG GO_VERSION=1.25.6
 RUN curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" | tar -C /usr/local -xzf -
 ENV PATH="/usr/local/go/bin:$PATH"
 ENV GOPATH="/home/devuser/go"
 ENV PATH="$GOPATH/bin:$PATH"
+
+# Rebuild Go tools with patched dependencies (fixes CVE-2024-45337, CVE-2025-22869, CVE-2023-39325)
+RUN go install golang.org/x/tools/gopls@latest \
+    && go install github.com/go-delve/delve/cmd/dlv@latest \
+    && go install golang.org/x/tools/cmd/goimports@latest \
+    && go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest \
+    && rm -rf /root/go/pkg/mod/cache
 
 # =============================================================================
 # Rust Language
@@ -120,7 +127,8 @@ RUN --mount=type=cache,target=/root/.npm \
     ts-node \
     eslint \
     prettier \
-    pnpm
+    pnpm \
+    && npm update -g
 
 # =============================================================================
 # Python Global Tools (with BuildKit cache)
@@ -140,7 +148,11 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     rich \
     typer \
     pyyaml \
-    tabulate
+    tabulate \
+    && pip3 install --break-system-packages --upgrade \
+    "setuptools>=78.1.1" \
+    "wheel>=0.46.2" \
+    "jaraco.context>=6.1.0"
 
 # Add pipx and uv paths
 ENV PATH="/root/.local/bin:$PATH"

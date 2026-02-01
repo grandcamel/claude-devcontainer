@@ -12,16 +12,19 @@
 
 LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$LIB_DIR/.." && pwd)"
+export PROJECT_ROOT  # Used by sourcing scripts
 
 # Default image name (can be overridden via env vars)
 DEFAULT_IMAGE_NAME="grandcamel/claude-devcontainer"
 DEFAULT_IMAGE_TAG="latest"
 IMAGE_NAME="${CLAUDE_DEVCONTAINER_IMAGE:-$DEFAULT_IMAGE_NAME}"
 IMAGE_TAG="${CLAUDE_DEVCONTAINER_TAG:-$DEFAULT_IMAGE_TAG}"
+export IMAGE_NAME IMAGE_TAG  # Used by sourcing scripts
 CLAUDE_CONFIG_TMP_DIR=""
 
 # Plugin/workspace directory (can be overridden by scripts)
 PLUGIN_DIR="${CLAUDE_PLUGIN_DIR:-}"
+export PLUGIN_DIR  # Used by sourcing scripts
 
 # =============================================================================
 # Color Output

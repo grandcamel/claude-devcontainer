@@ -77,6 +77,7 @@
 <td width="50%">
 
 ### ❌ The Old Way
+
 ```bash
 # Write a Dockerfile (30 min)
 # Debug PATH issues (20 min)
@@ -85,16 +86,19 @@
 # "Works on my machine" (∞ hours)
 # New teammate joins → repeat
 ```
-*Hope everyone has the same setup...*
+
+_Hope everyone has the same setup..._
 
 </td>
 <td width="50%">
 
 ### ✅ The New Way
+
 ```bash
 ./scripts/run.sh --use-enhanced
 ```
-*Identical environment. Every time. Everyone.*
+
+_Identical environment. Every time. Everyone._
 
 </td>
 </tr>
@@ -102,13 +106,13 @@
 
 ### Time Saved
 
-| Task | Manual Setup | With DevContainer | Saved |
-|------|--------------|-------------------|-------|
-| New dev environment | 2-4 hours | 1 minute | 97% |
-| Onboard new teammate | 1-2 hours | 30 seconds | 99% |
-| Add Python + Node + Go + Rust | 45 minutes | 0 (pre-installed) | 100% |
-| Configure Claude Code in container | 30 minutes | 0 (just works) | 100% |
-| Debug "works on my machine" | Hours/days | 0 (identical env) | 100% |
+| Task                               | Manual Setup | With DevContainer | Saved |
+| ---------------------------------- | ------------ | ----------------- | ----- |
+| New dev environment                | 2-4 hours    | 1 minute          | 97%   |
+| Onboard new teammate               | 1-2 hours    | 30 seconds        | 99%   |
+| Add Python + Node + Go + Rust      | 45 minutes   | 0 (pre-installed) | 100%  |
+| Configure Claude Code in container | 30 minutes   | 0 (just works)    | 100%  |
+| Debug "works on my machine"        | Hours/days   | 0 (identical env) | 100%  |
 
 **Solo developer:** Save a full day on environment setup.
 **Team of 8:** Reclaim 2+ weeks per year on onboarding alone.
@@ -159,6 +163,7 @@ docker pull grandcamel/claude-devcontainer:enhanced
 ```
 
 Or run directly:
+
 ```bash
 docker run -it -v $(pwd):/workspace/project grandcamel/claude-devcontainer:enhanced
 ```
@@ -181,13 +186,13 @@ You want to code, not write Dockerfiles. You need Python for scripts, Node for f
 
 ### What You Get
 
-| Need | Solution |
-|------|----------|
-| Multiple languages | Python 3.11, Node.js 20, Go 1.22, Rust—all ready |
-| Modern tooling | Starship prompt, eza, bat, lazygit, neovim |
-| Claude Code | Pre-installed (use `--oauth-token` or `--api-key`) |
-| Your project | Mounted and ready at `/workspace/project` |
-| Extra packages | `--pip flask --npm typescript` at runtime |
+| Need               | Solution                                           |
+| ------------------ | -------------------------------------------------- |
+| Multiple languages | Python 3.11, Node.js 20, Go 1.22, Rust—all ready   |
+| Modern tooling     | Starship prompt, eza, bat, lazygit, neovim         |
+| Claude Code        | Pre-installed (use `--oauth-token` or `--api-key`) |
+| Your project       | Mounted and ready at `/workspace/project`          |
+| Extra packages     | `--pip flask --npm typescript` at runtime          |
 
 **Time saved:** 2-4 hours on initial setup, every single time.
 
@@ -212,12 +217,12 @@ git submodule add https://github.com/grandcamel/claude-devcontainer.git .devcont
 
 ### Team Benefits
 
-| Challenge | Solution |
-|-----------|----------|
-| Inconsistent environments | Identical container for everyone |
-| Slow onboarding | 30 seconds to full dev environment |
-| Dependency conflicts | Isolated per-project containers |
-| "It worked yesterday" | Versioned, reproducible images |
+| Challenge                 | Solution                           |
+| ------------------------- | ---------------------------------- |
+| Inconsistent environments | Identical container for everyone   |
+| Slow onboarding           | 30 seconds to full dev environment |
+| Dependency conflicts      | Isolated per-project containers    |
+| "It worked yesterday"     | Versioned, reproducible images     |
 
 ### Customize for Your Team
 
@@ -269,13 +274,13 @@ Corporate proxy? Private registry? Custom CA certificates? All supported.
 
 ### Enterprise Features
 
-| Requirement | Solution |
-|-------------|----------|
-| Corporate proxy/CA | `--ca-cert zscaler.crt` during build |
-| Private registry | Push to Harbor, Nexus, GitLab Registry |
-| Versioned releases | Git tag → image tag mapping |
-| Air-gapped environments | Pre-built images, no runtime downloads |
-| Audit trail | Generated Dockerfile in version control |
+| Requirement             | Solution                                |
+| ----------------------- | --------------------------------------- |
+| Corporate proxy/CA      | `--ca-cert zscaler.crt` during build    |
+| Private registry        | Push to Harbor, Nexus, GitLab Registry  |
+| Versioned releases      | Git tag → image tag mapping             |
+| Air-gapped environments | Pre-built images, no runtime downloads  |
+| Audit trail             | Generated Dockerfile in version control |
 
 ### Team Members Pull & Run
 
@@ -297,12 +302,12 @@ docker pull harbor.company.com/platform/dev-container:1.0.0
 
 ### Languages
 
-| Language | Version | Package Managers |
-|----------|---------|-----------------|
-| Python | 3.11 | pip, venv, poetry, uv |
-| Node.js | 20 | npm, yarn, pnpm |
-| Go | 1.22 | go modules |
-| Rust | stable | cargo |
+| Language | Version | Package Managers      |
+| -------- | ------- | --------------------- |
+| Python   | 3.11    | pip, venv, poetry, uv |
+| Node.js  | 20      | npm, yarn, pnpm       |
+| Go       | 1.22    | go modules            |
+| Rust     | stable  | cargo                 |
 
 ### Cloud & DevOps
 
@@ -338,18 +343,18 @@ docker pull harbor.company.com/platform/dev-container:1.0.0
 
 The enhanced image (`--use-enhanced`) includes modern CLI replacements:
 
-| Tool | Replaces | Description |
-|------|----------|-------------|
-| Starship | PS1 | Fast, customizable prompt |
-| eza | ls | ls with icons and git status |
-| bat | cat | Syntax highlighting |
-| delta | diff | Better git diffs |
-| zoxide | cd | Smart directory jumping |
-| btop | top | Modern system monitor |
-| lazygit | — | Git terminal UI |
-| tmux | — | Terminal multiplexer (Ctrl-a prefix) |
-| neovim | vim | Modern editor + kickstart config |
-| direnv | — | Per-directory environments |
+| Tool     | Replaces | Description                          |
+| -------- | -------- | ------------------------------------ |
+| Starship | PS1      | Fast, customizable prompt            |
+| eza      | ls       | ls with icons and git status         |
+| bat      | cat      | Syntax highlighting                  |
+| delta    | diff     | Better git diffs                     |
+| zoxide   | cd       | Smart directory jumping              |
+| btop     | top      | Modern system monitor                |
+| lazygit  | —        | Git terminal UI                      |
+| tmux     | —        | Terminal multiplexer (Ctrl-a prefix) |
+| neovim   | vim      | Modern editor + kickstart config     |
+| direnv   | —        | Per-directory environments           |
 
 ---
 
@@ -526,12 +531,12 @@ docker run -it -v $(pwd):/workspace/project grandcamel/claude-devcontainer:enhan
 
 ## Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `ANTHROPIC_API_KEY` | API key for Claude (use with `--api-key` flag) |
-| `CLAUDE_CODE_OAUTH_TOKEN` | OAuth token for Pro/Max users (use with `--oauth-token` flag, generate via `claude setup-token`) |
-| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | Set to 1 in container |
-| `CLAUDE_PLUGIN_DIR` | Plugin directory mount point |
+| Variable                                   | Description                                                                                      |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| `ANTHROPIC_API_KEY`                        | API key for Claude (use with `--api-key` flag)                                                   |
+| `CLAUDE_CODE_OAUTH_TOKEN`                  | OAuth token for Pro/Max users (use with `--oauth-token` flag, generate via `claude setup-token`) |
+| `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC` | Set to 1 in container                                                                            |
+| `CLAUDE_PLUGIN_DIR`                        | Plugin directory mount point                                                                     |
 
 ---
 
