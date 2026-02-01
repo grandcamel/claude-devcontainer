@@ -207,8 +207,11 @@ jobs:
 
       - name: Test base Python packages
         run: |
-          # pytest/httpx installed as root (--break-system-packages), test as root
-          docker run --rm --entrypoint "" -u root test-base python3 -c "import pytest; print(f'pytest {pytest.__version__}')"
+          # Debug: show where pytest is installed
+          docker run --rm --entrypoint "" -u root test-base pip3 show pytest || true
+          docker run --rm --entrypoint "" -u root test-base python3 -c "import sys; print(sys.path)"
+          # pytest/httpx installed as root (--break-system-packages)
+          docker run --rm --entrypoint "" -u root test-base python3 -m pytest --version
           docker run --rm --entrypoint "" -u root test-base python3 -c "import httpx; print(f'httpx {httpx.__version__}')"
           # pandas is in user venv, test as devuser
           docker run --rm --entrypoint "" test-base /home/devuser/venv/bin/python3 -c "import pandas; print(f'pandas {pandas.__version__}')"
