@@ -207,8 +207,11 @@ jobs:
 
       - name: Test base Python packages
         run: |
-          docker run --rm --entrypoint "" test-base /home/devuser/venv/bin/python3 -c "import pytest; print(f'pytest {pytest.__version__}')"
-          docker run --rm --entrypoint "" test-base /home/devuser/venv/bin/python3 -c "import httpx; print(f'httpx {httpx.__version__}')"
+          # pytest is installed in system Python (--break-system-packages)
+          docker run --rm --entrypoint "" test-base python3 -c "import pytest; print(f'pytest {pytest.__version__}')"
+          # httpx is in both system and venv
+          docker run --rm --entrypoint "" test-base python3 -c "import httpx; print(f'httpx {httpx.__version__}')"
+          # pandas is in user venv
           docker run --rm --entrypoint "" test-base /home/devuser/venv/bin/python3 -c "import pandas; print(f'pandas {pandas.__version__}')"
 
       - name: Build enhanced image
