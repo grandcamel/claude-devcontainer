@@ -235,7 +235,7 @@ RUN --mount=type=cache,target=/home/devuser/.cache/pip,uid=1000,gid=1000 \
 # =============================================================================
 # Ensure PATH is set for login shells (prepend to .profile so it runs first)
 # =============================================================================
-RUN PROFILE_CONTENT=$(cat ~/.profile) && \
+RUN PROFILE_CONTENT=$(cat ~/.profile 2>/dev/null || true) && \
     echo '# Toolchain paths (must be set before other profile scripts)' > ~/.profile && \
     echo 'export PATH="/home/devuser/venv/bin:/usr/local/cargo/bin:/home/devuser/go/bin:/usr/local/go/bin:$PATH"' >> ~/.profile && \
     echo '' >> ~/.profile && \
