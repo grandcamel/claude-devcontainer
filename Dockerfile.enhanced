@@ -30,7 +30,7 @@ LABEL version="1.0.0"
 USER root
 
 # Additional apt packages for enhanced experience
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get upgrade -y && apt-get install -y --no-install-recommends \
     tmux \
     neovim \
     direnv \
