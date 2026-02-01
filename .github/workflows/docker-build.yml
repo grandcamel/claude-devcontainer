@@ -78,15 +78,15 @@ jobs:
 
       - name: Run npm audit
         run: |
-          docker run --rm claude-devcontainer:security-scan bash -c "npm audit --audit-level=high || true"
+          docker run --rm --entrypoint "" claude-devcontainer:security-scan bash -c "npm audit --audit-level=high || true"
 
       - name: Run pip-audit
         run: |
-          docker run --rm claude-devcontainer:security-scan bash -c "pip install pip-audit && pip-audit || true"
+          docker run --rm --entrypoint "" claude-devcontainer:security-scan bash -c "pip install pip-audit && pip-audit || true"
 
       - name: Run bandit security scanner
         run: |
-          docker run --rm claude-devcontainer:security-scan bash -c "pip install bandit && bandit -r /home/devuser -x /home/devuser/.cache,/home/devuser/venv -ll || true"
+          docker run --rm --entrypoint "" claude-devcontainer:security-scan bash -c "pip install bandit && bandit -r /home/devuser -x /home/devuser/.cache,/home/devuser/venv -ll || true"
 
   build-base:
     name: Build Base Image
