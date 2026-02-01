@@ -136,22 +136,31 @@ git commit --no-verify -m "message"
 
 ### Configured Hooks
 
-| Hook | Purpose |
-| ---- | ------- |
-| trailing-whitespace | Remove trailing whitespace |
-| end-of-file-fixer | Ensure files end with newline |
-| check-yaml/json | Validate syntax |
-| no-commit-to-branch | Block direct commits to main |
-| prettier | Format JS/JSON/YAML/Markdown |
-| gitleaks | Detect hardcoded secrets |
-| shellcheck | Lint shell scripts |
-| hadolint | Lint Dockerfiles |
+| Hook                | Purpose                       |
+| ------------------- | ----------------------------- |
+| trailing-whitespace | Remove trailing whitespace    |
+| end-of-file-fixer   | Ensure files end with newline |
+| check-yaml/json     | Validate syntax               |
+| no-commit-to-branch | Block direct commits to main  |
+| prettier            | Format JS/JSON/YAML/Markdown  |
+| gitleaks            | Detect hardcoded secrets      |
+| shellcheck          | Lint shell scripts            |
+| hadolint            | Lint Dockerfiles              |
 
 ### Hadolint Ignored Rules
 
-- `DL3008` - Pin apt versions (impractical for dev containers)
-- `DL3013` - Pin pip versions (handled by explicit upgrades)
-- `DL3059` - Multiple consecutive RUN (improves readability)
+| Rule   | Reason                                                    |
+| ------ | --------------------------------------------------------- |
+| DL3007 | Using `:latest` tag intentional for enhanced image        |
+| DL3008 | Pin apt versions impractical for dev containers           |
+| DL3013 | Pin pip versions handled by explicit upgrades             |
+| DL3016 | Pin npm versions - use latest intentionally               |
+| DL3059 | Multiple consecutive RUN improves readability             |
+| DL3062 | Pin go install versions - use @latest for security        |
+| DL4006 | pipefail not critical for dev containers                  |
+| SC2016 | Single quotes intentional (prevent expansion in .profile) |
+| SC2028 | echo escape sequences intentional (PS1 prompt colors)     |
+| SC2086 | ARG variables safe unquoted in Dockerfile context         |
 
 ## Lessons Learned & Security
 

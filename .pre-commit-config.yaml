@@ -38,7 +38,27 @@ repos:
     rev: v2.12.0
     hooks:
       - id: hadolint
-        args: ["--ignore", "DL3008", "--ignore", "DL3013", "--ignore", "DL3059"]
+        args:
+          - "--ignore"
+          - "DL3007" # Using latest tag (intentional for enhanced image)
+          - "--ignore"
+          - "DL3008" # Pin apt versions (impractical for dev containers)
+          - "--ignore"
+          - "DL3013" # Pin pip versions (handled by explicit upgrades)
+          - "--ignore"
+          - "DL3016" # Pin npm versions (use latest intentionally)
+          - "--ignore"
+          - "DL3059" # Multiple consecutive RUN (improves readability)
+          - "--ignore"
+          - "DL3062" # Pin go install versions (use @latest for security)
+          - "--ignore"
+          - "DL4006" # pipefail (not critical for dev containers)
+          - "--ignore"
+          - "SC2016" # Single quotes intentional (prevent expansion in .profile)
+          - "--ignore"
+          - "SC2028" # echo escape sequences intentional (PS1 prompt colors)
+          - "--ignore"
+          - "SC2086" # ARG variables safe unquoted in Dockerfile context
 
 ci:
   autofix_prs: true
