@@ -207,9 +207,9 @@ jobs:
 
       - name: Test base Python packages
         run: |
-          docker run --rm --entrypoint "" test-base python3 -c "import pytest; print(f'pytest {pytest.__version__}')"
-          docker run --rm --entrypoint "" test-base python3 -c "import httpx; print(f'httpx {httpx.__version__}')"
-          docker run --rm --entrypoint "" test-base python3 -c "import pandas; print(f'pandas {pandas.__version__}')"
+          docker run --rm --entrypoint "" test-base /home/devuser/venv/bin/python3 -c "import pytest; print(f'pytest {pytest.__version__}')"
+          docker run --rm --entrypoint "" test-base /home/devuser/venv/bin/python3 -c "import httpx; print(f'httpx {httpx.__version__}')"
+          docker run --rm --entrypoint "" test-base /home/devuser/venv/bin/python3 -c "import pandas; print(f'pandas {pandas.__version__}')"
 
       - name: Build enhanced image
         run: docker build --no-cache -t test-enhanced -f Dockerfile.enhanced .
