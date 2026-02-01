@@ -118,3 +118,96 @@ gh pr merge --rebase --delete-branch
 ## CI/CD
 
 GitHub Actions workflow (`.github/workflows/docker-build.yml`) builds both base and enhanced images on push to main, uses Docker layer caching, and runs basic validation tests on PRs.
+
+## Pre-commit Hooks
+
+Pre-commit hooks are configured in `.pre-commit-config.yaml`:
+
+```bash
+# Install hooks (one-time setup)
+pre-commit install
+
+# Run on all files
+pre-commit run --all-files
+
+# Bypass hooks for direct commits to main (use sparingly)
+git commit --no-verify -m "message"
+```
+
+### Configured Hooks
+
+| Hook | Purpose |
+| ---- | ------- |
+| trailing-whitespace | Remove trailing whitespace |
+| end-of-file-fixer | Ensure files end with newline |
+| check-yaml/json | Validate syntax |
+| no-commit-to-branch | Block direct commits to main |
+| prettier | Format JS/JSON/YAML/Markdown |
+| gitleaks | Detect hardcoded secrets |
+| shellcheck | Lint shell scripts |
+| hadolint | Lint Dockerfiles |
+
+### Hadolint Ignored Rules
+
+- `DL3008` - Pin apt versions (impractical for dev containers)
+- `DL3013` - Pin pip versions (handled by explicit upgrades)
+- `DL3059` - Multiple consecutive RUN (improves readability)
+
+## Lessons Learned & Security
+
+### Go Dependency Vulnerabilities
+
+**Problem**: Go tools (gopls, dlv, golangci-lint) compile in vulnerable versions of `golang.org/x/crypto` and `golang.org/x/net` at build time.
+
+**Solution**: Rebuild tools after Go upgrade to pull patched dependencies:
+
+```dockerfile
+ARG GO_VERSION=1.25.6
+RUN curl -fsSL "https://go.dev/dl/go${GO_VERSION}.linux-amd64.tar.gz" | tar -C /usr/local -xzf -
+
+# Rebuild tools with patched dependencies
+RUN go install golang.org/x/tools/gopls@latest \
+    && go install github.com/go-delve/delve/cmd/dlv@latest \
+    && go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+```
+
+**Key insight**: Simply upgrading Go isn't enough—pre-compiled tools retain old dependencies until rebuilt.
+
+### Python Package CVEs
+
+**Problem**: System Python packages (setuptools, wheel) may have CVEs even after `apt-get upgrade`.
+
+**Solution**: Explicitly upgrade known-vulnerable packages with minimum versions:
+
+```dockerfile
+RUN pip3 install --break-system-packages --upgrade \
+    "setuptools>=78.1.1" \
+    "wheel>=0.46.2" \
+    "jaraco.context>=6.1.0"
+```
+
+### Pre-commit no-commit-to-branch
+
+**Behavior**: The `no-commit-to-branch` hook blocks commits directly to main. This is intentional to enforce PR workflow.
+
+**Workaround**: For legitimate direct commits (releases, CI fixes), use `--no-verify`:
+
+```bash
+git commit --no-verify -m "fix: emergency hotfix"
+```
+
+### Hadolint Local vs CI
+
+**Issue**: Hadolint may not be installed locally but runs in CI via `hadolint-action`.
+
+**Solution**: Pre-commit config includes hadolint, but failures are expected locally if not installed. CI is the source of truth for Dockerfile linting.
+
+### Security Scanning in CI
+
+The `security-scan` job runs after lint and includes:
+
+- `npm audit --audit-level=high` - Node.js dependency vulnerabilities
+- `pip-audit` - Python dependency vulnerabilities
+- `bandit` - Python static security analysis
+
+These use `|| true` to report without blocking, as some findings may be false positives or upstream issues.
