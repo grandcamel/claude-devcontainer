@@ -189,50 +189,50 @@ jobs:
 
       - name: Test base toolchains
         run: |
-          echo "=== Python ===" && docker run --rm test-base python3 --version
-          echo "=== Node ===" && docker run --rm test-base node --version
-          echo "=== npm ===" && docker run --rm test-base npm --version
-          echo "=== Go ===" && docker run --rm test-base go version
-          echo "=== Rust ===" && docker run --rm test-base rustc --version
-          echo "=== Cargo ===" && docker run --rm test-base cargo --version
+          echo "=== Python ===" && docker run --rm --entrypoint "" test-base python3 --version
+          echo "=== Node ===" && docker run --rm --entrypoint "" test-base node --version
+          echo "=== npm ===" && docker run --rm --entrypoint "" test-base npm --version
+          echo "=== Go ===" && docker run --rm --entrypoint "" test-base go version
+          echo "=== Rust ===" && docker run --rm --entrypoint "" test-base rustc --version
+          echo "=== Cargo ===" && docker run --rm --entrypoint "" test-base cargo --version
 
       - name: Test base CLI tools
         run: |
-          echo "=== Git ===" && docker run --rm test-base git --version
-          echo "=== GitHub CLI ===" && docker run --rm test-base gh --version
-          echo "=== AWS CLI ===" && docker run --rm test-base aws --version
-          echo "=== Docker CLI ===" && docker run --rm test-base docker --version
-          echo "=== ripgrep ===" && docker run --rm test-base rg --version
-          echo "=== jq ===" && docker run --rm test-base jq --version
+          echo "=== Git ===" && docker run --rm --entrypoint "" test-base git --version
+          echo "=== GitHub CLI ===" && docker run --rm --entrypoint "" test-base gh --version
+          echo "=== AWS CLI ===" && docker run --rm --entrypoint "" test-base aws --version
+          echo "=== Docker CLI ===" && docker run --rm --entrypoint "" test-base docker --version
+          echo "=== ripgrep ===" && docker run --rm --entrypoint "" test-base rg --version
+          echo "=== jq ===" && docker run --rm --entrypoint "" test-base jq --version
 
       - name: Test base Python packages
         run: |
-          docker run --rm test-base python3 -c "import pytest; print(f'pytest {pytest.__version__}')"
-          docker run --rm test-base python3 -c "import httpx; print(f'httpx {httpx.__version__}')"
-          docker run --rm test-base python3 -c "import pandas; print(f'pandas {pandas.__version__}')"
+          docker run --rm --entrypoint "" test-base python3 -c "import pytest; print(f'pytest {pytest.__version__}')"
+          docker run --rm --entrypoint "" test-base python3 -c "import httpx; print(f'httpx {httpx.__version__}')"
+          docker run --rm --entrypoint "" test-base python3 -c "import pandas; print(f'pandas {pandas.__version__}')"
 
       - name: Build enhanced image
         run: docker build --no-cache -t test-enhanced -f Dockerfile.enhanced .
 
       - name: Test enhanced CLI tools
         run: |
-          echo "=== Starship ===" && docker run --rm test-enhanced starship --version
-          echo "=== eza ===" && docker run --rm test-enhanced eza --version
-          echo "=== bat ===" && docker run --rm test-enhanced bat --version
-          echo "=== delta ===" && docker run --rm test-enhanced delta --version
-          echo "=== zoxide ===" && docker run --rm test-enhanced zoxide --version
-          echo "=== lazygit ===" && docker run --rm test-enhanced lazygit --version
-          echo "=== btop ===" && docker run --rm test-enhanced btop --version
-          echo "=== tmux ===" && docker run --rm test-enhanced tmux -V
-          echo "=== neovim ===" && docker run --rm test-enhanced nvim --version | head -1
+          echo "=== Starship ===" && docker run --rm --entrypoint "" test-enhanced starship --version
+          echo "=== eza ===" && docker run --rm --entrypoint "" test-enhanced eza --version
+          echo "=== bat ===" && docker run --rm --entrypoint "" test-enhanced bat --version
+          echo "=== delta ===" && docker run --rm --entrypoint "" test-enhanced delta --version
+          echo "=== zoxide ===" && docker run --rm --entrypoint "" test-enhanced zoxide --version
+          echo "=== lazygit ===" && docker run --rm --entrypoint "" test-enhanced lazygit --version
+          echo "=== btop ===" && docker run --rm --entrypoint "" test-enhanced btop --version
+          echo "=== tmux ===" && docker run --rm --entrypoint "" test-enhanced tmux -V
+          echo "=== neovim ===" && docker run --rm --entrypoint "" test-enhanced nvim --version | head -1
 
       - name: Test enhanced shell configuration
         run: |
           # Verify starship and zoxide are in bashrc
-          docker run --rm test-enhanced grep -q "starship init" /home/devuser/.bashrc
-          docker run --rm test-enhanced grep -q "zoxide init" /home/devuser/.bashrc
+          docker run --rm --entrypoint "" test-enhanced grep -q "starship init" /home/devuser/.bashrc
+          docker run --rm --entrypoint "" test-enhanced grep -q "zoxide init" /home/devuser/.bashrc
           # Verify delta is configured in git
-          docker run --rm test-enhanced git config --global --get core.pager | grep -q delta
+          docker run --rm --entrypoint "" test-enhanced git config --global --get core.pager | grep -q delta
 
   image-scan:
     name: Container Image Scan
