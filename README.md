@@ -29,7 +29,7 @@
   <a href="https://hub.docker.com/r/grandcamel/claude-devcontainer"><img src="https://img.shields.io/docker/pulls/grandcamel/claude-devcontainer?logo=docker&logoColor=white" alt="Docker Pulls"></a>
   <img src="https://img.shields.io/badge/python-3.11-3776AB?logo=python&logoColor=white" alt="Python 3.11">
   <img src="https://img.shields.io/badge/node-20-339933?logo=node.js&logoColor=white" alt="Node.js 20">
-  <img src="https://img.shields.io/badge/go-1.22-00ADD8?logo=go&logoColor=white" alt="Go 1.22">
+  <img src="https://img.shields.io/badge/go-1.25-00ADD8?logo=go&logoColor=white" alt="Go 1.25">
   <img src="https://img.shields.io/badge/rust-stable-000000?logo=rust&logoColor=white" alt="Rust">
   <a href="https://github.com/grandcamel/claude-devcontainer"><img src="https://img.shields.io/github/stars/grandcamel/claude-devcontainer?style=social" alt="GitHub Stars"></a>
   <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
@@ -48,7 +48,7 @@
 ├───────────────────────────────────────────────────────────────┤
 │ [INFO] Starting developer container...                        │
 │                                                               │
-│ ✓ Python 3.11, Node.js 20, Go 1.22, Rust ready                │
+│ ✓ Python 3.11, Node.js 20, Go 1.25, Rust ready                │
 │ ✓ Claude Code ready (bring your token or API key)             │
 │ ✓ Modern CLI: starship, eza, bat, lazygit, neovim             │
 │ ✓ Your project mounted at /workspace/project                  │
@@ -188,7 +188,7 @@ You want to code, not write Dockerfiles. You need Python for scripts, Node for f
 
 | Need               | Solution                                           |
 | ------------------ | -------------------------------------------------- |
-| Multiple languages | Python 3.11, Node.js 20, Go 1.22, Rust—all ready   |
+| Multiple languages | Python 3.11, Node.js 20, Go 1.25, Rust—all ready   |
 | Modern tooling     | Starship prompt, eza, bat, lazygit, neovim         |
 | Claude Code        | Pre-installed (use `--oauth-token` or `--api-key`) |
 | Your project       | Mounted and ready at `/workspace/project`          |
@@ -306,7 +306,7 @@ docker pull harbor.company.com/platform/dev-container:1.0.0
 | -------- | ------- | --------------------- |
 | Python   | 3.11    | pip, venv, poetry, uv |
 | Node.js  | 20      | npm, yarn, pnpm       |
-| Go       | 1.22    | go modules            |
+| Go       | 1.25    | go modules            |
 | Rust     | stable  | cargo                 |
 
 ### Cloud & DevOps
